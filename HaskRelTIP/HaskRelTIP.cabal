@@ -1,0 +1,28 @@
+name:                HaskRelTIP
+version:             0.1.0.0
+synopsis:            Haskell as a TIP based, first-class DBMS with support for the relational algebra
+description:         HaskRelTIP, a TIP based DBMS library with support for the relational algebra
+                    .
+                     This is the variation of HaskRel based on HList TIPs. It is split out from the HList record based version of HaskRel because it has the additional dependency upon Lens, because this is not in line with the relational model as it stands (which maps more readily to a data structure building on HList records), and because it is less elegant for ad-hoc queries.
+                    .
+                     See HaskRelRec for more information.
+license:             GPL-2
+license-file:        LICENSE
+author:              Thor Michael Støre
+maintainer:          thormichael@gmail.com
+copyright:           Thor Michael Støre 2015
+category:            Database
+build-type:          Simple
+extra-source-files:  examples/*.hs, examples/*.sh, examples/SuppliersPartsDB/*.hs
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Database.HaskRelTIP.RDBMSTIP, Database.HaskRelTIP.TIPFWTabulation, Database.HaskRelTIP.Relational.Algebra, Database.HaskRelTIP.Relational.Assignment, Database.HaskRelTIP.Relational.Definition, Database.HaskRelTIP.Relational.Expression, Database.HaskRelTIP.Relational.Unicode, Database.HaskRelTIP.Relational.Variable, Database.HaskRel.FWTabulation, Database.HaskRel.HFWTabulation, Database.HaskRel.NonRel, Database.HaskRel.Order, Database.HaskRel.Support, Database.HaskRel.Relational.Definition
+  
+  other-extensions:    ViewPatterns, DataKinds, FlexibleContexts, TypeFamilies, DeriveDataTypeable, TemplateHaskell, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances, ScopedTypeVariables, TypeOperators, AllowAmbiguousTypes, FunctionalDependencies, KindSignatures, PolyKinds
+  
+  build-depends:       base >=4.8 && <4.9, containers >=0.5 && <0.6, HList >=0.4 && <0.5, lens >=4.12 && <4.13, ghc-prim >=0.4 && <0.5, directory >=1.2 && <1.3, tagged >=0.8 && <0.9
+  -- TODO: Is it appropriate to symlink to src-rec this way, or should this depend on HaskRelRec as a library?
+  hs-source-dirs:      src, src-rec
+  
+  default-language:    Haskell2010

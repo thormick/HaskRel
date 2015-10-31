@@ -1,0 +1,20 @@
+Major TODOs:
+Testing (QuickCheck for algebra, HSpec for expressions and anything dependent on relvars? Not sure how to get QuickCheck working for the HList Record type.)
+
+Fix Algebra.rename, right now it doesn't work with MonOp.
+
+Algebra.extend and Algebra.restrict are complicated to use with Expression, since they cannot handle a IO result from the function they take as their argument. They should support IO forms of that; IO (RTuple a) and IO Bool. This in addition to their current forms, which may be a bit tricky to achieve.
+
+Right now HaskRel is oriented towards fixed-width character presentation of results in a text format, particularly error messages are intertwined and printed in this format. This should be loosened up so that it can support other forms of output at the same time, such as HTML tables. A fully dynamic system where any given session can print either form is a bit of overkill, does Haskell/GHCi have the option to load a single module that handles some aspect of (re-)presentation?
+
+
+Misc:
+An easy way to run the examples when HaskRel is installed as a library. Just linking to github, perhaps.
+
+HaskRel is currenly located in "Database", but that seems to only be used for database interfaces. Is "Data" a better location?
+
+
+Lesser TODOs (and random thoughts) are found in the source. From the root of the project:
+
+$ find src | grep ".hs$" | xargs grep TODO
+
