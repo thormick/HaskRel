@@ -77,6 +77,10 @@ cabal-version:       >=1.10
 
 tested-with:         GHC==7.10.2
 
+source-repository head
+  type:     git
+  location: https://github.com/thormick/HaskRel
+
 library
   exposed-modules:     Database.HaskRel.RDBMS, Database.HaskRel.FWTabulation, Database.HaskRel.HFWTabulation, Database.HaskRel.Order, Database.HaskRel.Support, Database.HaskRel.Relational.Algebra, Database.HaskRel.Relational.Assignment, Database.HaskRel.Relational.Definition, Database.HaskRel.Relational.Expression, Database.HaskRel.Relational.Unicode, Database.HaskRel.Relational.Variable
   
