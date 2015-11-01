@@ -53,4 +53,4 @@ Relation values named s', p' and sp' are also defined, of the same values as abo
     >>> s `rEq` s'
     True
 
-<tt>pt$ s'</tt>, <tt>pt$ p'</tt> and <tt>pt$ sp'</tt> will give the same result as above.
+`pt$ s'`, `pt$ p'` and `pt$ sp'` will give the same result as above.

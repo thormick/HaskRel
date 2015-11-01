@@ -2,11 +2,8 @@
 {-# LANGUAGE FlexibleContexts #-} 
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
---
---{-# LANGUAGE ViewPatterns #-}
-
 {-# LANGUAGE PolyKinds #-}
+--{-# LANGUAGE ViewPatterns #-}
 
 module AlgebraExample where
 
@@ -105,7 +102,8 @@ Which is the form one must employ when building relation values of ad-hoc types.
 -}
 
 {-
-If one wants to use the relation/rTuple functions, but in a completely ad-hoc manner, it'll have to look as follows.
+If one wants to use the relation/rTuple functions, but in a completely ad-hoc
+manner, it'll have to look as follows.
 -}
 snoStatusR3 = relation [
   rTuple ((Label :: Label "sno") .=. "S1", (Label :: Label "status") .=. (40::Int)),
@@ -119,10 +117,6 @@ snoStatusR4 = Data.Set.fromList [
   (Label :: Label "sno") .=. "S1" .*. (Label :: Label "status") .=. (40::Int) .*. emptyRecord,
   (Label :: Label "sno") .=. "S2" .*. (Label :: Label "status") .=. 30 .*. emptyRecord]
 
-
-{-
-This should explain why we define labels. Also note how one of the attributes have a type annotation, which it will need to have for the type to be "Int" and not "Integer".
--}
 
 -- Single attribute extension:
 -- (\ ((\[pun|sno status|] -> (sno++"-foo", status+5)) -> sno) -> (Label::Label "sno") .=. sno ) (sno "input" .*. status (5::Integer) .*. emptyRecord)

@@ -5,11 +5,11 @@ HaskRel, Haskell as a DBMS with support for the relational algebra
 
 HaskRel aims to define the elements of the relational theory of database management as first-class Haskell objects, thus enabling Haskell in its own right as a DBMS with first-class support for the relational algebra. It does not qualify as a proper RDBMS since it as-is only defines the relational algebra, relational variables and relational assignment. It does not define the relational calculus, views, constraints and transactions (beyond the fundamental requirement that the tuples of relations are to be unique), certain operators like relation valued aggregate operators, nor a few minor or even deprecated operators such as DIVIDE. The implemented parts are decently complete even if there are major implementation shortcomings that prevent this from being practically usable as an actual DBMS.
 
-I refer to it as <i>first-class</i> since the types of the relational model are first-class types to Haskell, and the Haskell type system is able to induce the type resulting of relational expressions (for instance that a natural join of two relations results in a relation with a heading that is the setwise union of the headings of the original relations).
+I refer to it as _first-class_ since the types of the relational model are first-class types to Haskell, and the Haskell type system is able to induce the type resulting of relational expressions (for instance that a natural join of two relations results in a relation with a heading that is the setwise union of the headings of the original relations).
 
 As such it isn't as much just an implementation of the relational model built using Haskell (the way, say, PostgreSQL is an implementation of SQL using C), as a Haskell library that accommodates a subset of the relational model (unlike PostgreSQL, which doesn't turn C into an RDBMS), where GHCi is employed as a database terminal front-end.
 
-HaskRel is not based on SQL, there is no support for anything that it defines beyond what the relational model does, nor plans for that. It is instead inspired by Tutorial D. For a project of this kind it is generally more sensible to follow developed theory as it stands rather than an industry standard. More specifically, HaskRel is intended as an exploration of the possibilities to directly employ a general purpose programming language and its associated REPL as a relational database management system, or even as a bit of an academic exercise, and a great deal of SQL is not relevant towards this end. (SQL defines for instance its own types, while HaskRel is explicitly intended to build upon Haskell's, and SQL's type system is weaker than Haskell's, in that it employs a wide range of coercions between types). Features and aspects of SQL are either irrelevant for the purpose of HaskRel, or overlap or conflict with Haskell idioms that are more relevant to adhere to for a "make an RDBMS out of a general purpose programming language" project. (Parts of Tutorial D also overlap, such as the <tt>THE_</tt> operator and selectors vs. show and read, but all in all a fraction of what SQL does.) Even if there were plans to go beyond this and support SQL it would be a good first step to first support the fundamentals of the relational model both as <i>completely</i> as it is reasonable to do, and to do so <i>properly</i>.
+HaskRel is not based on SQL, there is no support for anything that it defines beyond what the relational model does, nor plans for that. It is instead inspired by Tutorial D. For a project of this kind it is generally more sensible to follow developed theory as it stands rather than an industry standard. More specifically, HaskRel is intended as an exploration of the possibilities to directly employ a general purpose programming language and its associated REPL as a relational database management system, or even as a bit of an academic exercise, and a great deal of SQL is not relevant towards this end. (SQL defines for instance its own types, while HaskRel is explicitly intended to build upon Haskell's, and SQL's type system is weaker than Haskell's, in that it employs a wide range of coercions between types). Features and aspects of SQL are either irrelevant for the purpose of HaskRel, or overlap or conflict with Haskell idioms that are more relevant to adhere to for a "make an RDBMS out of a general purpose programming language" project. (Parts of Tutorial D also overlap, such as the `THE_` operator and selectors vs. show and read, but all in all a fraction of what SQL does.) Even if there were plans to go beyond this and support SQL it would be a good first step to first support the fundamentals of the relational model both as _completely_ as it is reasonable to do, and to do so _properly_.
 
 For an understanding of the foundation HaskRel builds on see for instance [SQL and Relational Theory, 2nd ed.](http://shop.oreilly.com/product/0636920022879.do), [The Third Manifesto](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf), and the additional material on [http://www.thethirdmanifesto.com/]().
 
@@ -25,7 +25,7 @@ Trying it out
 
 To get started with an example database cd into examples, run suppliersPartsDB.sh, look through SuppliersPartsExample.hs, and run examples from the Haddock or that file.
 
-Alternatively, if one runs <tt>cabal repl</tt> one will have to either load a file with definitions, or define some elements to play around with. In the example below most everything is ad-hoc, predefining a few values would make certain expressions look less messy. Here are what constants look like:
+Alternatively, if one runs `cabal repl` one will have to either load a file with definitions, or define some elements to play around with. In the example below most everything is ad-hoc, predefining a few values would make certain expressions look less messy. Here are what constants look like:
 
     *Database.HaskRel.RDBMS> let foo = relation' [( 10, "foo" ),( 20, "bar" ) ] :: Relation '[Attr "asdf" Int, Attr "qwer" String]
     *Database.HaskRel.RDBMS> let bar = relation' [( 10, "one" ),( 30, "two" ) ] :: Relation '[Attr "asdf" Int, Attr "zxcv" String]
@@ -72,7 +72,7 @@ Ad-hoc relvars can be defined thusly:
 
 See "examples" for the proper way to do this.
 
-<tt>assign</tt> against a newly defined relvar initializes it in the file system, and will create a file relative to the directory the interpreter is run from.
+`assign` against a newly defined relvar initializes it in the file system, and will create a file relative to the directory the interpreter is run from.
 
     *Database.HaskRel.RDBMS> pt baz
     ┌─────────────┬────────────────┐
@@ -113,7 +113,7 @@ Concise expression of updates require a set of language extensions:
     │ 30          │ frotz-new      │
     └─────────────┴────────────────┘
 
-All functions of the relational algebra that HaskRel implement work against both relation constants and relvars, as do the print functions <tt>p</tt> and <tt>pt</tt>:
+All functions of the relational algebra that HaskRel implement work against both relation constants and relvars, as do the print functions `p` and `pt`:
 
     *Database.HaskRel.RDBMS> p$ baz `nJoin` bar
     ┌──────┬───────────┬──────┐

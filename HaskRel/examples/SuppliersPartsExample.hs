@@ -17,22 +17,9 @@ import Database.HaskRel.Order
 import SuppliersPartsDB.Definition
 import SuppliersPartsDB.Default
 
--- To make a few type signatures prettier, and to use HList constructors directly, instead of "relation"/"relation'"
+-- To make a few type signatures prettier, and to use HList constructors
+-- directly, instead of "relation"/"relation'"
 import Data.Set ( Set, fromList )
-
-{- Ad-hoc relvars:
->>> let foo = Relvar "foo.rv" (undefined::Relation S)
->>> foo ≔ ( relation' [("S1","Foo", 10, "Bar"),("S2", "zcxv", 20, "poiu")] :: Relation S )
->>> pt foo
-┌───────────────┬─────────────────┬───────────────────┬────────────────┐
-│ sno :: String │ sName :: String │ status :: Integer │ city :: String │
-╞═══════════════╪═════════════════╪═══════════════════╪════════════════╡
-│ S1            │ Foo             │ 10                │ Bar            │
-│ S2            │ zcxv            │ 20                │ poiu           │
-└───────────────┴─────────────────┴───────────────────┴────────────────┘
-
-And there is now a file foo.rv in your working directory.
--}
 
 makeLabels6 ["pnoRel","pq","sn","pn","x","y","nc","nw","qtys"]
 
@@ -82,7 +69,9 @@ pX = p `extendA` (\[pun|weight|] -> status .=. ( floor ( weight / 4 ) * 10 ))
 
 -- | Examples from pp. 108-167 of SQL and Relational Theory 2nd Edition.
 snrt2ndExamples = do
-  -- Note that there are many redundant brackets here, either to help make certain expressions more akin to the Tutorial D expressions they are based on, or just to make them slightly more explicit.
+{- Note that there are many redundant brackets here, either to help make certain
+expressions more akin to the Tutorial D expressions they are based on, or just
+to make them slightly more explicit. -}
   putStrLn "108"
   rPrint$ ( p `nJoin` s ) `restrict` (\[pun|pName sName|] -> pName > sName )
 --
@@ -136,16 +125,24 @@ snrt2ndExamples = do
               `project` (ü :: Labels '["pno", "gmwt"])
 --
   putStrLn "\n136"
--- A bit of an issue: relvars are as of now not usable inside the function that restrict or extend takes, so they have to be manually read with readRelvar
--- Also, I use "!!" to denote the image relation function in this case just to show how that will have to look in Haskell, but since that has to be enclosed in parenthesis I'll instead use "ii" below, which will work as a prefix operator since it starts with an alphabetic character (and kinda looks like !! upside down).
+{-
+A bit of an issue: relvars are as of now not usable inside the function that
+restrict or extend takes, so they have to be manually read with readRelvar
+
+Also, I use "!!" to denote the image relation function in this case just to show
+how that will have to look in Haskell, but since that has to be enclosed in
+parenthesis I'll instead use "ii" below, which will work as a prefix operator
+since it starts with an alphabetic character (and kinda looks like !! upside
+down).
+-}
   rPrint$ do spx <- readRelvar sp
              px <- readRelvar p
              s `restrict` (\( image -> (!!) ) ->
                             ( ((!!)spx) `project` (rHdr (pno)) )
                               == ( px `project` (rHdr (pno)) ) )
--- The above example uses view patterns to make sure that the expression part of
--- the lambda is specified as in Tutorial D. Alternatively, one could use the
--- tuple directly and employ the "image" function on that:
+{- The above example uses view patterns to make sure that the expression part of
+the lambda is specified as in Tutorial D. Alternatively, one could use the tuple
+directly and employ the "image" function on that: -}
 {-
   rPrint$ do spx <- readRelvar sp
              px <- readRelvar p
@@ -158,25 +155,33 @@ snrt2ndExamples = do
 --
 
   putStrLn "\n137"
--- Note how the variable sno overrides the defined label sno, which is worked around by using the constructor _sno instead. Another alternative would be (Label::Label "sno") .=. sno.
+-- Note how the variable sno overrides the defined label sno, which is worked
+-- around by using the constructor _sno instead. Another alternative would be
+-- (Label::Label "sno") .=. sno.
   rPrint$ do spx <- readRelvar sp
              px <- readRelvar p
              s `restrict` (\[pun|sno|] ->
                              ( ( spx `matching` ( relation [rTuple (_sno sno)] ) )
                                `project` (rHdr (pno)) )
                              == px `project` (rHdr (pno)))
-  -- Skipping pp. 138-139 and DIVIDE since it's not implemented in HaskRel, see below for the image relation formulation.
+  -- Skipping pp. 138-139 and DIVIDE since it's not implemented in HaskRel, see
+  -- below for the image relation formulation.
 --
   putStrLn "\n140"
-  -- Just like with lambdas non-relational expressions don't work with direct relvars. Here the result of the operation is bound to a variable...
+  -- Just like with lambdas non-relational expressions don't work with direct
+  -- relvars. Here the result of the operation is bound to a variable...
   do n <- count s
      putStrLn $ show n
-  -- ... or readRelvar s could be bound and an expression that takes the relation value can be used:
+  -- ... or readRelvar s could be bound and an expression that takes the
+  -- relation value can be used:
   do s' <- readRelvar s
      putStrLn $ show $ count (s' `project` (ü :: Labels '["status"]))
-  -- But note: Both "count s" and "count (s `project` (ü :: Labels '["status"]))" work just fine in GHCi, without any do block or similar (in contrast with lambda expressions).
+  -- But note: Both "count s" and "count (s `project` (ü :: Labels
+  -- '["status"]))" work just fine in GHCi, without any do block or similar (in
+  -- contrast with lambda expressions).
   putStrLn "1."
-  -- Another similar issue: While "agg"/"aggU" supports types similar to "IO [Integer]", "sum", of course, does not
+  -- Another similar issue: While "agg"/"aggU" supports types similar to "IO
+  -- [Integer]", "sum", of course, does not
   do spx <- readRelvar sp
      putStrLn $ show $ sum $ agg qty spx
   putStrLn "2."
@@ -204,7 +209,8 @@ snrt2ndExamples = do
   do spx <- readRelvar sp
      rPrint$ s `restrict` (\( image -> ii ) -> ( count (ii spx) ) < 3)
   putStrLn "3:"
-  -- Because QTY is defined to be an integer, Haskell requires a bit more explicit plumbing to multiply it by 0.5 and to compare the result
+  -- Because QTY is defined to be an integer, Haskell requires a bit more
+  -- explicit plumbing to multiply it by 0.5 and to compare the result
   do spx <- readRelvar sp
      rPrint$ s `restrict` (\( image -> ii ) ->
                            ( toRational $ minx ( agg qty (ii spx) ) 0 )
@@ -226,7 +232,8 @@ snrt2ndExamples = do
                             count ( ii $ renameA (renameA spx (sno `as` sn)) (pno `as` pn) )
                             > 2)
 -- See "updates" function below for example 5
--- TODO: Summarization. Since it's a special case of extension, image relations, and aggregation it's not a major priority
+-- TODO: Summarization. Since it's a special case of extension, image relations,
+-- and aggregation it's not a major priority
 --
   putStrLn "\n152"
   rPrint$ group r1 (rHdr (pno)) (pnoRel .=.)
@@ -243,9 +250,9 @@ snrt2ndExamples = do
   rPrint$ spq `restrict` (\[pun|sno|] -> sno == "S2") `ungroup` (ü :: Label "pq") `project` (rHdr (sno))
   rPrint$ sp `restrict` (\[pun|pno|] -> pno == "P2") `project` (rHdr (sno))
   rPrint$ sp `restrict` (\[pun|sno|] -> sno == "S2") `project` (rHdr (pno))
---
-  -- TODO: putStrLn "\n156"; Insert and update examples in function "updates" below, requires spq as a relvar. See above for the query involving an image relation.
---
+-- TODO: putStrLn "\n156"; Insert and update examples in function "updates"
+-- below, requires spq as a relvar. See above for the query involving an image
+-- relation.
   putStrLn "\n157"
   rPrint$
     do spx <- readRelvar sp
@@ -268,7 +275,8 @@ snrt2ndExamples = do
         r3 = r2 `projectAllBut` (rHdr (city,weight))
      in ( r3 `rename` nAs ((nc `as` city),(nw `as` weight)) )
 {-
-The examples on the bottom of page 158 and top of 159 would be expressed as follows in GHCi:
+The examples on the bottom of page 158 and top of 159 would be expressed as
+follows in GHCi:
 
 *SuppliersPartsExample> let s1 = p `restrict` (\[pun|city|] -> city == "Paris" )
 *SuppliersPartsExample> let s2 = ( p `restrict` (\[pun|city|] -> city == "Paris" ) ) `extendA` (\_ -> city .=. "Nice" ) `extendA` (\[pun|weight|] -> (Label::Label "weight") .=. weight * 2)
@@ -277,7 +285,8 @@ The examples on the bottom of page 158 and top of 159 would be expressed as foll
 -- Pages 159-163: Recursion. TODO: On hold.
 --
   putStrLn "\n163"
--- TODO: rtlPrint/rtlPrintTyped (r-tuple-list-print), to give a tabular representation of a tuple list.
+-- TODO: rtlPrint/rtlPrintTyped (r-tuple-list-print), to give a tabular
+-- representation of a tuple list.
   putStrLn $ show $ (s' `matching` sp') `orderOn` (\[pun|sno|] -> Asc sno)
 -- TODO: Exercises for chapter 7 on pages 164-167
 

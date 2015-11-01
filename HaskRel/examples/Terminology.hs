@@ -17,9 +17,17 @@ haskRel = Label::Label "haskRel"
 
 type Terms = Relation '[Haskell, RelModel, HaskRel, SQL]
 
-{-| Terms as they appear in Haskell, relational theory, HaskRel and SQL. Both terms defined in the various systems of computations and terms used in writings to describe it are included ("function" et. al. being an example of the latter), the the former capitalized and the latter in lower case. Haskell terms are given qualified when standing alone, and unqualified when used together. The RelModel attribute shows the terms as understood from SQL and the Relational Model, 2nd ed.
+{-| Terms as they appear in Haskell, relational theory, HaskRel and SQL. Both
+terms defined in the various systems of computations and terms used in writings
+to describe it are included ("function" et. al. being an example of the latter),
+the the former capitalized and the latter in lower case. Haskell terms are given
+qualified when standing alone, and unqualified when used together. The RelModel
+attribute shows the terms as understood from SQL and the Relational Model, 2nd
+ed.
 
-Additionally, the when referring to the type itself of "Record a" and "Set ( Record a )" the term "heading" is used in relational theory, and "row type" or "composite type" in SQL.
+Additionally, the when referring to the type itself of "Record a" and "Set (
+Record a )" the term "heading" is used in relational theory, and "row type" or
+"composite type" in SQL.
 -}
 terms = relation' [
   ("Data.Tagged.Tagged", "attribute", "Attr", "field, column"),
