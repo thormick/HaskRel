@@ -3,7 +3,7 @@ HaskRel, Haskell as a DBMS with support for the relational algebra
 
 (C) 2015, Thor Michael Støre
 
-HaskRel aims to define the elements of the relational theory of database management as first-class Haskell objects, thus enabling Haskell in its own right as a DBMS with first-class support for the relational algebra. It does not qualify as a proper RDBMS since it as-is only defines the relational algebra, relational variables and relational assignment. It does not define the relational calculus, views, constraints and transactions (beyond the fundamental requirement that the tuples of relations are to be unique), certain operators like relation valued aggregate operators, nor a few minor or even deprecated operators such as DIVIDE. The implemented parts are decently complete even if there are major implementation shortcomings that prevent this from being practically usable as an actual DBMS.
+HaskRel aims to define those elements of the relational theory of database management that Haskell can accommodate, thus enabling Haskell (or more precisely GHC) in its own right as a DBMS with first-class support for those parts of the relational model. It does not qualify as a proper RDBMS since it as-is only defines the relational algebra, relational variables and relational assignment. It does not define the relational calculus, views, constraints and transactions (beyond the fundamental requirement that the tuples of relations are to be unique), certain operators like relation valued aggregate operators, nor a few minor or even deprecated operators such as DIVIDE. The implemented parts are decently complete even if there are major implementation shortcomings that prevent this from being practically usable as an actual DBMS.
 
 I refer to it as _first-class_ since the types of the relational model are first-class types to Haskell, and the Haskell type system is able to induce the type resulting of relational expressions (for instance that a natural join of two relations results in a relation with a heading that is the setwise union of the headings of the original relations).
 
@@ -70,7 +70,7 @@ Ad-hoc relvars can be defined thusly:
     *Database.HaskRel.RDBMS> assign baz (empty :: Relation '[Attr "asdf" Int, Attr "qwer" String] )
     Value assigned to baz.rv
 
-See "examples" for the proper way to do this.
+See "examples/SuppliersPartsDB/Definition.hs" for a way to do this properly.
 
 `assign` against a newly defined relvar initializes it in the file system, and will create a file relative to the directory the interpreter is run from.
 
