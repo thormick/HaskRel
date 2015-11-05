@@ -8,7 +8,8 @@
 -- TODO: Does this have more performance issues than the TIP based version?
 module SuppliersPartsExample where
 
-import Database.HaskRel.Relational.Definition ( Relation, RTuple, Attr, relation, relation', tableDum, tableDee, empty, rTuple, pt, rPrint )
+import Database.HaskRel.Relational.Definition (
+  Relation, RTuple, Attr, relation, relation', tableDum, tableDee, empty, rTuple, pt, rPrint )
 
 import Database.HaskRel.RDBMS hiding ( p )
 import Database.HaskRel.Support
@@ -55,11 +56,24 @@ r4 = relation [rTuple (sno .=. "S2", pnoRel .=. relation [pno .=. "P1" .*. empty
 
 
 -- TODO: This should be a relvar, check that RVAs work for them.
-spq = relation [rTuple (sno .=. "S5", sName .=. "Adams", status .=. 30, city .=. "Athens", pq .=. relation []),
-                rTuple (sno .=. "S1", sName .=. "Smith", status .=. 20, city .=. "London", pq .=. relation [rTuple (pno .=. "P1", qty .=. 300), rTuple (pno .=. "P2", qty .=. 200), rTuple (pno .=. "P3", qty .=. 400), rTuple (pno .=. "P4", qty .=. 200), rTuple (pno .=. "P5", qty .=. 100), rTuple (pno .=. "P6", qty .=. 100)]),
-                rTuple (sno .=. "S2", sName .=. "Jones", status .=. 10, city .=. "Paris", pq .=. relation [rTuple (pno .=. "P1", qty .=. 300), rTuple (pno .=. "P2", qty .=. 400)]),
-                rTuple (sno .=. "S3", sName .=. "Blake", status .=. 30, city .=. "Paris", pq .=. relation [rTuple (pno .=. "P2", qty .=. 200)]),
-                rTuple (sno .=. "S4", sName .=. "Clark", status .=. 20, city .=. "London", pq .=. relation [rTuple (pno .=. "P2", qty .=. 200), rTuple (pno .=. "P4", qty .=. 300), rTuple (pno .=. "P5", qty .=. 400)])]
+spq = relation [rTuple (sno .=. "S5", sName .=. "Adams", status .=. 30, city .=. "Athens",
+                        pq .=. relation []),
+                rTuple (sno .=. "S1", sName .=. "Smith", status .=. 20, city .=. "London",
+                        pq .=. relation [rTuple (pno .=. "P1", qty .=. 300),
+                                         rTuple (pno .=. "P2", qty .=. 200),
+                                         rTuple (pno .=. "P3", qty .=. 400),
+                                         rTuple (pno .=. "P4", qty .=. 200),
+                                         rTuple (pno .=. "P5", qty .=. 100),
+                                         rTuple (pno .=. "P6", qty .=. 100)]),
+                rTuple (sno .=. "S2", sName .=. "Jones", status .=. 10, city .=. "Paris",
+                        pq .=. relation [rTuple (pno .=. "P1", qty .=. 300),
+                                         rTuple (pno .=. "P2", qty .=. 400)]),
+                rTuple (sno .=. "S3", sName .=. "Blake", status .=. 30, city .=. "Paris",
+                        pq .=. relation [rTuple (pno .=. "P2", qty .=. 200)]),
+                rTuple (sno .=. "S4", sName .=. "Clark", status .=. 20, city .=. "London",
+                        pq .=. relation [rTuple (pno .=. "P2", qty .=. 200),
+                                         rTuple (pno .=. "P4", qty .=. 300),
+                                         rTuple (pno .=. "P5", qty .=. 400)])]
 
 -- | "undefined" is used liberally enough that a concise alias for it is convenient.
 ü = undefined

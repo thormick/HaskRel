@@ -18,9 +18,18 @@ Stability   : experimental
 
 Relational algebra based on HList records.
 
-It is important to note that, in order to build a straight forward foundation, this module defines pure functions, viz. they only operate upon relational /values/, not relvars or the result of expressions involving relvars. See "Database.HaskRel.Relational.Expression" for functions that function as conveyed by the relational model, which are the ones that are intended to be used directly.
+It is important to note that, in order to build a straight forward foundation,
+this module defines pure functions, viz. they only operate upon relational
+/values/, not relvars or the result of expressions involving relvars. See
+"Database.HaskRel.Relational.Expression" for functions that function as conveyed
+by the relational model, which are the ones that are intended to be used
+directly.
 
-All the examples in "Database.HaskRel.Relational.Expression" are defined in terms of the relvars s, p and sp; to run the examples in that module with the functions of this module one can use the relation values s', p' and sp' instead. The script examples\/algebraExample.sh starts a GHCi session with the imports and pragmas required to run these examples.
+All the examples in "Database.HaskRel.Relational.Expression" are defined in
+terms of the relvars s, p and sp; to run the examples in that module with the
+functions of this module one can use the relation values s', p' and sp'
+instead. The script examples\/algebraExample.sh starts a GHCi session with the
+imports and pragmas required to run these examples.
 -}
 module Database.HaskRel.Relational.Algebra (
   -- * Operators of the relational algebra
@@ -111,7 +120,9 @@ rename
      Relation a -> tr -> Relation r
 rename r l = Data.Set.map (rhRenameLabels l) r
 
--- | Renames a single attribute. See 'Database.HaskRel.Relational.Expression.renameA'
+{- | Renames a single attribute. See
+'Database.HaskRel.Relational.Expression.renameA'
+-}
 renameA
   :: forall l1 v1 r v' v l . (Ord (HExtendR (Tagged l1 v1) (r v')), HasField l (r v) v1,
       HExtend (Tagged l1 v1) (r v'), HDeleteAtLabel r l v v') =>
@@ -119,7 +130,8 @@ renameA
 renameA r frto = Data.Set.map (hRenameLabel (Label::Label l) (untag frto)) r
 
 
-{- | Extends the given relation with the r-tuple resulting from the second argument. Existing attributes with the same name will be replaced.
+{- | Extends the given relation with the r-tuple resulting from the second
+argument. Existing attributes with the same name will be replaced.
 
 See 'Database.HaskRel.Relational.Expression.extend'.
 -}
@@ -131,7 +143,9 @@ extend
      Relation r' -> (Record r' -> Record r) -> Relation (HAppendListR r r'1)
 extend r f = Data.Set.map (\t -> f t .<++. t ) r
 
-{- | Extends the given relation with the attribute resulting from the second argument. If an attribute with the same name exists then it will be replaced. This allows for the function of the second argument to be simpler.
+{- | Extends the given relation with the attribute resulting from the second
+argument. If an attribute with the same name exists then it will be
+replaced. This allows for the function of the second argument to be simpler.
 
 See 'Database.HaskRel.Relational.Expression.extendA'.
 -}
@@ -140,10 +154,16 @@ extendA :: forall r l e v v'.
       HDeleteAtLabel r l v v') =>
      Set (r v) -> (r v -> Tagged l e) -> Set (HExtendR (Tagged l e) (r v'))
 extendA r f = Data.Set.map (\t -> f t .*. hDeleteAtLabel (Label::Label l) t) r
--- TODO: An attempt to define a class with instances for what is now extend and extendA resulted in something that broke inference. Try again? Is it also possible make extendA a class, with an instance that uses .*. without hDeleteByLabel, and one that uses .@.? I can't see a way to. Probably better to make a quasiquoter, as mentioned in Expression.hs.
+
+-- TODO: An attempt to define a class with instances for what is now extend and
+-- extendA resulted in something that broke inference. Try again? Is it also
+-- possible make extendA a class, with an instance that uses .*. without
+-- hDeleteByLabel, and one that uses .@.? I can't see a way to. Probably better
+-- to make a quasiquoter, as mentioned in Expression.hs.
 
 
-{- | Disjoint extension. Extends the given relation with the result of the second argument, as 'extend', but without deleting any that exist.
+{- | Disjoint extension. Extends the given relation with the result of the second
+argument, as 'extend', but without deleting any that exist.
 
 See 'Database.HaskRel.Relational.Expression.dExtend'.
 -}
@@ -157,8 +177,9 @@ dExtend
      Relation r' -> (Record r' -> Record r) -> Relation (HAppendListR r r'1)
 dExtend = extend
 
-{- |
-Disjoint extension of a single attribute. Extends the given relation with the result of the second argument, as 'extend', but without deleting any that exist. @l@ cannot already have any attribute @e@.
+{- | Disjoint extension of a single attribute. Extends the given relation with the
+result of the second argument, as 'extend', but without deleting any that
+exist. @l@ cannot already have any attribute @e@.
 
 See 'Database.HaskRel.Relational.Expression.dExtendA'.
 -}
@@ -167,7 +188,8 @@ dExtendA :: (Ord (HExtendR e l), HExtend e l) =>
 dExtendA r f = Data.Set.map (\t -> f t .*. t) r
 
 
--- TODO: imageExtend: Use type level concatenation to build a label from the labels of the body
+-- TODO: imageExtend: Use type level concatenation to build a label from the
+-- labels of the body
 {-
 type family (++) (as :: [k]) (bs :: [k]) :: [k] where
   (++) a '[] = a
@@ -175,7 +197,9 @@ type family (++) (as :: [k]) (bs :: [k]) :: [k] where
   (++) (a ': as) bs = a ': (as ++ bs)
 -}
 
-{- | Extends the first given relation with an attribute resulting from imaging each tuple of said relation against the second given relation. This gives a superset of the information given by SQL @RIGHT OUTER JOIN@.
+{- | Extends the first given relation with an attribute resulting from imaging
+each tuple of said relation against the second given relation. This gives a
+superset of the information given by SQL @RIGHT OUTER JOIN@.
 
 See 'Database.HaskRel.Relational.Expression.imageExtendL'.
 -}
@@ -193,7 +217,9 @@ imageExtendL
 imageExtendL r1 r2 l = dExtendA r1 (\t -> l .=. t `image` r2)
 
 
-{- | Restricts the given relation according to the given predicate. Note that this is the well known 'WHERE' operator of both SQL and Tutorial D, but since "where" is a reserved keyword in Haskell it is named "restrict".
+{- | Restricts the given relation according to the given predicate. Note that this
+is the well known 'WHERE' operator of both SQL and Tutorial D, but since "where"
+is a reserved keyword in Haskell it is named "restrict".
 
 See 'Database.HaskRel.Relational.Expression.restrict'.
 -}
@@ -213,7 +239,8 @@ project
      Relation t -> proxy ls -> Relation a
 project r h = Data.Set.map ( hProjectByLabels h ) r
 
-{- | Projects the given relation on the heading of said given relation minus the given heading.
+{- | Projects the given relation on the heading of said given relation minus the
+given heading.
 
 See 'Database.HaskRel.Relational.Expression.projectAllBut'.
 -}
@@ -236,8 +263,13 @@ union
 union r1 r2 = Data.Set.union r1 ( relRearrange r2 )
 
 
--- TODO: This should not just cause "error". Perhaps an Either String (Relation a) or Either (Relation ?) (Relation a) instead of causing an error. Will have to amend at least HFWPresent if so.
-{- | Performs a disjoint union between the two relvars. This is a union of disjoint relations, where a runtime error is raised if the operands are not disjoint.
+-- TODO: This should not just cause "error". Perhaps an Either String (Relation
+-- a) or Either (Relation ?) (Relation a) instead of causing an error. Will have
+-- to amend at least HFWPresent if so.
+
+{- | Performs a disjoint union between the two relvars. This is a union of
+disjoint relations, where a runtime error is raised if the operands are not
+disjoint.
 
 See 'Database.HaskRel.Relational.Expression.dUnion'.
 -}
@@ -258,7 +290,10 @@ dUnion l r =
 
 {-| The intersection of two relations.
 
-Note how the name is different from Data.Set, where the comparable function is named "intersection". This is due to it being referred to as "intersect" in material describing the relational model; specifically named \"INTERSECT\" in Tutorial D.
+Note how the name is different from Data.Set, where the comparable function is
+named "intersection". This is due to it being referred to as "intersect" in
+material describing the relational model; specifically named \"INTERSECT\" in
+Tutorial D.
 
 See 'Database.HaskRel.Relational.Expression.intersect'.
 -}
@@ -272,7 +307,8 @@ intersect l r = intersection l $ relRearrange r
 
 {-| The difference of two relations.
 
-The "minus" term is used in material describing relational theory; specifically Tutorial D names the operator \"MINUS\".
+The "minus" term is used in material describing relational theory; specifically
+Tutorial D names the operator \"MINUS\".
 
 See 'Database.HaskRel.Relational.Expression.minus'.
 -}
@@ -284,7 +320,11 @@ minus
      Relation l -> Relation r -> Relation l
 minus l r = difference l $ relRearrange r
 
-{-| The difference of two relations. This differs from 'minus' in that the attribute order of the second argument takes precedence, which is neccessary to swap precedence since 'minus' is non-commutative. This function is as such equal to 'minus' as far as relational theory is concerned, the difference is on a lower level of abstraction.
+{-| The difference of two relations. This differs from 'minus' in that the
+attribute order of the second argument takes precedence, which is neccessary to
+swap precedence since 'minus' is non-commutative. This function is as such equal
+to 'minus' as far as relational theory is concerned, the difference is on a
+lower level of abstraction.
 -}
 minus_
   :: (Ord (HList l), HRearrange3 (LabelsOf l) r l,
@@ -367,7 +407,8 @@ joinTOnR t1 r2 = Data.Set.foldr (tupJoin t1) [] r2
         then hAppend t1' cP : b
         else b
 
-{- | The cartesian product of two relations. A specialized natural join; the natural join between two relations with disjoint headings.
+{- | The cartesian product of two relations. A specialized natural join; the
+natural join between two relations with disjoint headings.
 
 See 'Database.HaskRel.Relational.Expression.times'.
 -}
@@ -387,7 +428,8 @@ times
 times = naturalJoin
 
 
--- TODO: Get this working, now it just ends up with overlapping error instead of the Fail IsEmpty
+-- TODO: Get this working, now it just ends up with overlapping error instead of
+-- the Fail IsEmpty
 data IsEmpty
 
 -- | Failure class restricting a type-level operation to a non-empty result.
@@ -395,13 +437,21 @@ class NotEmpty ( l :: [*] )
 instance NotEmpty l -- Is there any way to match on "anything that is not '[]"?
 instance ( Fail IsEmpty ) => NotEmpty '[]
 
--- Finding out that when : is induced one must simply use ': instead was frustrating
+-- Finding out that when : is induced one must simply use ': instead was
+-- frustrating
 
-{-| Performs a natural join between two relations with intersecting headings. A specialized natural join.
+{-| Performs a natural join between two relations with intersecting headings. A
+specialized natural join.
 
-A join upon relations r1, r2 where the intersection of the heading of r1 and of r2 is not empty; the headings are not disjoint. This is the complement of 'times' that together with it forms a natural join; all that would be disallowed for @times@ is allowed here and vice-versa. The name is what I quickly settled on, suggestions for a better one would be welcome. (Attribute-Intersecting Natural Join is another candidate.)
+A join upon relations r1, r2 where the intersection of the heading of r1 and of
+r2 is not empty; the headings are not disjoint. This is the complement of
+'times' that together with it forms a natural join; all that would be disallowed
+for @times@ is allowed here and vice-versa. The name is what I quickly settled
+on, suggestions for a better one would be welcome. (Attribute-Intersecting
+Natural Join is another candidate.)
 
-This function doesn't have a specific identity value, although it holds that @r \`interJoin\` r = r@
+This function doesn't have a specific identity value, although it holds that
+@r \`interJoin\` r = r@
 
 See 'Database.HaskRel.Relational.Expression.interJoin'.
 -}
@@ -435,7 +485,8 @@ iJoin
 iJoin = interJoin
 
 
-{- | Performs a semi-join of the first given relation against the second given relation.
+{- | Performs a semi-join of the first given relation against the second given
+relation.
 
 See 'Database.HaskRel.Relational.Expression.matching'.
 -}
@@ -486,7 +537,8 @@ tIntersectEq
      Record t -> Record l1 -> Bool
 tIntersectEq t1 t2 = hProjectByLabels ( labelsOf t1 ) t2 `unordRecEq` hProjectByLabels ( labelsOf t2 ) t1
 
-{- | Performs a semi-difference of the first given relation against the second given relation.
+{- | Performs a semi-difference of the first given relation against the second
+given relation.
 
 Aka. antijoin:
 
@@ -506,7 +558,8 @@ notMatching
      Relation t -> Relation l1 -> Relation t
 notMatching = semiDiff
 
--- | Alias of 'notMatching'. See 'Database.HaskRel.Relational.Expression.semiDiff'.
+{- | Alias of 'notMatching'. See
+'Database.HaskRel.Relational.Expression.semiDiff'. -}
 semiDiff
   :: (Eq (HList l), Ord (HList t), HRearrange3 (LabelsOf l) r l,
       HLabelSet (LabelsOf l), HLabelSet (LabelsOf r),
@@ -538,8 +591,14 @@ semiDiffTOnR t1 (t2:r2) =
 
 
 {- Image Relations
-Definition: Let relations r1 and r2 be joinable (i.e., such that attributes with the same name are of the same type); let t1 be a tuple of r1; let t2 be a tuple of r2 that has the same values for those common attributes as tuple t1 does; let relation r3 be that restriction of r2 that contains all and only such tuples t2; and let relation r4 be the projection of r3 on all but those common attributes. Then r4 is the image relation (with respect to r2) corresponding to t1.
- - Chris J. Date, SQL and Relational Theory 2nd ed. p 136
+
+Definition: Let relations r1 and r2 be joinable (i.e., such that attributes with
+the same name are of the same type); let t1 be a tuple of r1; let t2 be a tuple
+of r2 that has the same values for those common attributes as tuple t1 does; let
+relation r3 be that restriction of r2 that contains all and only such tuples t2;
+and let relation r4 be the projection of r3 on all but those common
+attributes. Then r4 is the image relation (with respect to r2) corresponding to
+t1.  - Chris J. Date, SQL and Relational Theory 2nd ed. p 136
 -}
 
 -- Project tuple on relation heading
@@ -560,13 +619,14 @@ restrictByRTuple
 restrictByRTuple r t = Data.Set.filter ( ( t == ) . hProjectByLabels ( labelsOf t ) ) r
 
 -- TODO: It would possibly be more performant and still correct to use partition
--- instead of filter, and feed the remainder part of the result of that back into
--- this function as parameter r.
+-- instead of filter, and feed the remainder part of the result of that back
+-- into this function as parameter r.
 
 
 {-| The image of a relation corresponding to an r-tuple.
 
-An application of the first argument only, an r-tuple, to this function yields what is known as the @!!@ operator in Tutorial D.
+An application of the first argument only, an r-tuple, to this function yields
+what is known as the @!!@ operator in Tutorial D.
 
 >>> let qtySum = Label::Label "qtySum"
 >>> :{
@@ -588,16 +648,6 @@ image
 image t r = projectAllBut (restrictByRTuple r $ projectTOnR t r) (labelsOf t)
 
 
-{-
-
-In the last example query for `image`, if one replaces the first relvar, "s", with relvar "sp" then the meaning of the query changes to:
-"Get the quantities of items in stock for all suppliers that supply any products."
-
-This form of semi aggregation, basically splitting a relation into two and aggregating one half, is common enough to warrant a specialized function.
-
-
--}
-
 extendAByImage
   :: (Eq (HList l), Ord v, Ord (HList l1), Ord (HList r'),
       HLabelSet (LabelsOf l), HLabelSet (Label t ': LabelsOf l1),
@@ -609,9 +659,11 @@ extendAByImage
      -> (Relation r' -> Tagged t v) -> Relation (Tagged t v ': l1)
 extendAByImage rel relP fOut = dExtendA relP $ fOut . ( `image` rel )
 
--- TODO: group/groupAllBut can most likely be optimized by folding over them in a manner equivalent to this (somewhat) relational approach.
+-- TODO: group/groupAllBut can most likely be optimized by folding over them in
+-- a manner equivalent to this (somewhat) relational approach.
 
-{-| Groups the given attributes of the given relation into a given new relation valued attribute.
+{-| Groups the given attributes of the given relation into a given new relation
+valued attribute.
 
 As the Tutorial D GROUP operator, not SQL GROUP BY.
 
@@ -628,9 +680,16 @@ group
      -> proxy ks -> (Relation r' -> Tagged t v) -> Relation (Tagged t v ': l1)
 group rel attsIn = extendAByImage rel $ rel `projectAllBut` attsIn
 
--- TODO: That "group" supports both grouping into an RVA and grouping like group by is a bit of a design accident, consider making group only accept a label, and having a function that generalizes group that takes a function as group does now. Further consider a method that just takes a relation and a function, deriving the labels from the function result (I tried to do this but ran into issues).
+{- TODO: That "group" supports both grouping into an RVA and grouping like group
+by is a bit of a design accident, consider making group only accept a label, and
+having a function that generalizes group that takes a function as group does
+now. Further consider a method that just takes a relation and a function,
+deriving the labels from the function result (I tried to do this but ran into
+issues).
+-}
 
-{- | Groups the given relation on all but the given attributes into a given new attribute.
+{- | Groups the given relation on all but the given attributes into a given new
+attribute.
 
 See 'Database.HaskRel.Relational.Expression.groupAllBut'.
 -}
@@ -652,7 +711,8 @@ groupAllBut rel attsIn = extendAByImage rel $ rel `project` attsIn
 >>> sp' == ungroup ( group sp' (rHdr (pno,qty)) (pq .=.)) pq
 True
 
-Note the difference to 'Database.HaskRel.Relational.Expression.ungroup', which requires 'Database.HaskRel.Relational.Expression.rEq' for relational comparison.
+Note the difference to 'Database.HaskRel.Relational.Expression.ungroup', which
+requires 'Database.HaskRel.Relational.Expression.rEq' for relational comparison.
 -}
 ungroup
   :: (Eq (HList l), Ord (HList (HAppendListR t1 t2)),
@@ -709,7 +769,8 @@ summarize
      -> Relation (HAppendListR r r'1)
 summarize relA relB attsIn f = extendByImage relA ( relB `projectAllBut` attsIn ) f
 
-{- | Auto-summarization. A specialization of 'summarize' with the same source and destination relation.
+{- | Auto-summarization. A specialization of 'summarize' with the same source and
+destination relation.
 
 See 'Database.HaskRel.Relational.Expression.aSummarize'.
 -}
@@ -818,7 +879,9 @@ isSubsetOf
      Relation l -> Relation r -> Bool
 isSubsetOf l r = Data.Set.isSubsetOf l ( relRearrange r )
 
-{- | Right-fold of an attribute of a relation (although a "right" fold doesn't make sense in the context of the relational model). Note that the value of the third argument, 'att', is not used and may be "undefined".
+{- | Right-fold of an attribute of a relation (although a "right" fold doesn't
+make sense in the context of the relational model). Note that the value of the
+third argument, 'att', is not used and may be "undefined".
 
 See 'Database.HaskRel.Relational.Expression.rafoldr'.
 -}
@@ -828,9 +891,12 @@ rafoldr
 rafoldr f b a r = foldr ( f . (.!. a) ) b r
 
 
-{- | Attribute value aggregation, a specialization of 'rafoldr' that aggregates the values of a single attribute into a list of the values the attribute type wraps.
+{- | Attribute value aggregation, a specialization of 'rafoldr' that aggregates
+the values of a single attribute into a list of the values the attribute type
+wraps.
 
-Note that the value of the first argument, 'att', is not used and may be "undefined".
+Note that the value of the first argument, 'att', is not used and may be
+"undefined".
 
 >>> sum $ agg qty sp'
 3100
@@ -851,7 +917,9 @@ See 'Database.HaskRel.Relational.Expression.rafoldrU'.
 rafoldrU :: Foldable t => (b1 -> b -> b) -> b -> t (Record '[Tagged t1 b1]) -> b
 rafoldrU f b r = foldr ( f . unwrapUnary ) b r
 
-{- | Aggregation of the single attribute of a unary relation. A specialization of 'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of a unary relation, without requiring the name of that attribute.
+{- | Aggregation of the single attribute of a unary relation. A specialization of
+'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of a
+unary relation, without requiring the name of that attribute.
 
 >>> sum $ aggU $ sp' `project` (rHdr (qty))
 1000

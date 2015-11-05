@@ -2,17 +2,21 @@
 
 {-|
 Module      : Database.HaskRel.Relational.Unicode
-Description : Functions pertaining to relational theory or set theory named with unicode characters
+Description : Functions pertaining to relational theory or set theory named with
+              unicode characters
 Copyright   : © Thor Michael Støre, 2015
 License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmail døt com
 Stability   : experimental
 
-Functions pertaining to relational theory or set theory named with non-ASCII unicode characters, primarily infix operators. Each of these is a synonym for an alphabetically named prefix function.
+Functions pertaining to relational theory or set theory named with non-ASCII
+unicode characters, primarily infix operators. Each of these is a synonym for an
+alphabetically named prefix function.
 
 See also: http://hackage.haskell.org/package/base-unicode-symbols
 
-TODO: Fix operator precedence, right now one may need to apply more parenthesis than should be necessary.
+TODO: Fix operator precedence, right now one may need to apply more parenthesis
+than should be necessary.
 -}
 
 module Database.HaskRel.Relational.Unicode (
@@ -70,7 +74,8 @@ r1 ◅ r2 = notMatching r1 r2
 -- | Left semidifference. As @(flip 'Database.HaskRel.Relational.Expression.notMatching')@.
 r1 ▻ r2 = notMatching r2 r1
 
-{-| Times. The special case of natural join where the headings of the relations are disjoint.
+{-| Times. The special case of natural join where the headings of the relations
+are disjoint.
 
 >>> rPrint$ ( sp `projectAllBut` (rHdr (sno)) ) × ( s `projectAllBut` (rHdr (sno)) )
 ...
@@ -79,11 +84,15 @@ As 'Database.HaskRel.Relational.Expression.times'.
 -}
 l × r = times l r
 
-{-| Attribute intersecting natural join. The special case of natural join where the headings of the relations are not disjoint.
+{-| Attribute intersecting natural join. The special case of natural join where
+the headings of the relations are not disjoint.
 
-Using the "box times" or "squared times" (U+22A0) symbol is my own solution. As with the name "(attribute) intersecting natural join" suggestions are welcome.
+Using the "box times" or "squared times" (U+22A0) symbol is my own solution. As
+with the name "(attribute) intersecting natural join" suggestions are welcome.
 
-As mentioned in "Database.HaskRel.Relational.Algebra", this operation doesn't have a single identity value, although it holds that for any given relation value @r@, @r ⊠ r = r@
+As mentioned in "Database.HaskRel.Relational.Algebra", this operation doesn't
+have a single identity value, although it holds that for any given relation
+value @r@, @r ⊠ r = r@
 
 >>> rPrint$ sp ⊠ s
 ...
@@ -95,7 +104,10 @@ l ⊠ r = interJoin l r
 
 {-| Restriction.
 
-Note that the symbol used here is the divisor symbol, which looks the same but is distinct from the vertical bar, or pipe. However, since the vertical bar is used in Haskell for different purposes and is for that reason not a valid infix operator symbol, this is used instead.
+Note that the symbol used here is the divisor symbol, which looks the same but
+is distinct from the vertical bar, or pipe. However, since the vertical bar is
+used in Haskell for different purposes and is for that reason not a valid infix
+operator symbol, this is used instead.
 
 >>> rPrint$ p ∣ (\[pun|weight|] -> weight < 17.5)
 ...
@@ -136,12 +148,15 @@ l ∖ r = minus l r
 
 {-| Projection.
 
-Note that no matter how greek it is π is still a character, and Haskell therefore treats it as a prefix operator, which is in line with how it is employed.
+Note that no matter how greek it is π is still a character, and Haskell
+therefore treats it as a prefix operator, which is in line with how it is
+employed.
 
 >>> rPrint$ π (rHdr (color,city)) p
 ...
 
-As 'Database.HaskRel.Relational.Expression.project', but note how the operands are reversed.
+As 'Database.HaskRel.Relational.Expression.project', but note how the operands
+are reversed.
 -}
 π a r  = project r a
 
@@ -150,7 +165,8 @@ infix 1 ≔
 {-|
 Relational assignment operator.
 
-This uses the COLON EQUALS UTF-8 character (\&\#8788;), the ASCII variant := wouldn't be allowed in Haskell since it starts with a colon.
+This uses the COLON EQUALS UTF-8 character (\&\#8788;), the ASCII variant @ := @
+wouldn't be allowed in Haskell since it starts with a colon.
 
 >>> s ≔ s'
 >>>

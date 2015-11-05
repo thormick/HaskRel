@@ -22,7 +22,12 @@ RELATION
   TUPLE { SNO ‘S5’ , SNAME ‘Adams’ , STATUS 30 , CITY ‘Athens’ } }
 
 
-In Tutorial D attribute identifiers can both be used without arguments (within a query to denote a attribute of a relation in scope), or with an argument as above, as a attribute constructor. The same can be achieved in Haskell in various ways. One way is defining all pertinent functions such that they allow both a label and a constructor without an argument, and then only defining such constructors:
+In Tutorial D attribute identifiers can both be used without arguments (within a
+query to denote a attribute of a relation in scope), or with an argument as
+above, as a attribute constructor. The same can be achieved in Haskell in
+various ways. One way is defining all pertinent functions such that they allow
+both a label and a constructor without an argument, and then only defining such
+constructors:
 
 status a = (Label::Label "status") .=. (a::Integer)
 
@@ -30,9 +35,16 @@ Which would allow:
 
 rTuple ( sno "S1" , sName "Smith" , status 20 , city "London" )
 
-While still letting one use sno, sName, etc as attribute identifiers in functions. However, doing this consistently requires some rather convoluted type-level acrobatics that causes exponential growth in function definition complexity. As such only labels are defined in these examples, which one must use .=. to construct into the tagged values that are directly employed by HaskRel as relational attributes.
+While still letting one use sno, sName, etc as attribute identifiers in
+functions. However, doing this consistently requires some rather convoluted
+type-level acrobatics that causes exponential growth in function definition
+complexity. As such only labels are defined in these examples, which one must
+use .=. to construct into the tagged values that are directly employed by
+HaskRel as relational attributes.
 
-An alternative would be https://hackage.haskell.org/package/HList/docs/Data-HList-Labelable.html, though HaskRel records don't build on lens and can't accomodate that approach as-is.
+An alternative would be
+https://hackage.haskell.org/package/HList/docs/Data-HList-Labelable.html, though
+HaskRel records don't build on lens and can't accomodate that approach as-is.
 -}
 
 
@@ -74,13 +86,20 @@ sp' =
       ("S4", "P5", 400) ] :: Relation '[SNO, PNO, QTY]
 
 {-
-Also note how the attribute names above, SNO etc, are declared type synonyms in Definition.hs, and not ad-hoc. An equivalent ad-hoc definition would be:
+Also note how the attribute names above, SNO etc, are declared type synonyms in
+Definition.hs, and not ad-hoc. An equivalent ad-hoc definition would be:
 
 Relation '[Tagged "sno" String, Tagged "pno" String, Tagged "qty" Integer]
 
 
-An alternative approach is to define constructors for each label, which would also make it more type-safe:
+An alternative approach is to define constructors for each label, which would
+also make it more type-safe:
+
 sno' a = (Label :: Label "sno") .=. a :: SNO
 
-There may be a way to build the functions of the relational algebra such that they accept both "Label l" and "v -> Tagged l v" types, which would make it possible that instead of label constants one could just define constructors and used those against the functions of the relational algebra, but an investigation into that revealed no attempt that didn't have an unacceptable drawback.
+There may be a way to build the functions of the relational algebra such that
+they accept both "Label l" and "v -> Tagged l v" types, which would make it
+possible that instead of label constants one could just define constructors and
+used those against the functions of the relational algebra, but an investigation
+into that revealed no attempt that didn't have an unacceptable drawback.
 -}

@@ -5,19 +5,30 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
 
--- TODO: Can this be rewritten to be less reliant on Data.Typeable? Should be possible to just use it for getting the field type names, and not for parsing the entire type.
--- TODO: Check that nothing is missing from the export list; only HaskRel's dependencies are known to be covered.
--- TODO: New functions that did a tiny bit more than the last ones have been added haphazardly, clean up this and the users of this.
+{-
+TODO: Can this be rewritten to be less reliant on Data.Typeable? Should be
+possible to just use it for getting the field type names, and not for parsing
+the entire type.
 
+TODO: Check that nothing is missing from the export list; only HaskRel's
+dependencies are known to be covered.
+
+TODO: New functions that did a tiny bit more than the last ones have been added
+haphazardly, clean up this and the users of this.
+-}
 {-|
 Module      : HFWTabulation
-Description : Presentation of HList values in a two-dimensional fixed-width font form.
+Description : Presentation of HList values in a two-dimensional fixed-width font
+              form.
 Copyright   : © Thor Michael Støre, 2015
 License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmail døt com
 Stability   : experimental
 
-HList fixed-width tabular presentation. Presentation of HList values in a two-dimensional, tabular fixed-width font form with a header consisting of labels and optionally types. Only records are supported by this module, see `TIPFWTabulation` for support for TIPs.
+HList fixed-width tabular presentation. Presentation of HList values in a
+two-dimensional, tabular fixed-width font form with a header consisting of
+labels and optionally types. Only records are supported by this module, see
+`TIPFWTabulation` for support for TIPs.
 -}
 module Database.HaskRel.HFWTabulation (
   HFWPresent ( hfwPrint, hfwPrintTyped, hfwPrintTypedTS ),
@@ -73,7 +84,10 @@ class HListTypeSynonym s where
   hTIPTS :: s -> String
   hTIPSetTS :: s -> String
 
--- TODO: This only supports showing a single type synonym, it doesn't support showing "Set ( TIP '[Foo] )", for instance. This is sufficient for HaskRel, which only uses full type synonyms, for instance "Relation '[Foo]".
+{- TODO: This only supports showing a single type synonym, it doesn't support
+showing "Set ( TIP '[Foo] )", for instance. This is sufficient for HaskRel,
+which only uses full type synonyms, for instance "Relation '[Foo]".
+-}
 instance HListTypeSynonym EmptyTS where
   hRecTS _ = "Record"
   hRecSetTS _ = "Set-Record"
@@ -85,7 +99,9 @@ instance HListTypeSynonym EmptyTS where
 showTR :: TypeRep -> String
 showTR = showTRTS EmptyTS
 
--- TODO: Record presentation is copy'n'paste of TIP presentation, which gives the unfortunate 'Record '["foo"]'
+{- TODO: Record presentation is copy'n'paste of TIP presentation, which gives
+the unfortunate 'Record '["foo"]'
+-}
 -- | Show a TypeRep, using the given type synonyms
 showTRTS :: HListTypeSynonym ts => ts -> TypeRep -> String
 showTRTS ts t

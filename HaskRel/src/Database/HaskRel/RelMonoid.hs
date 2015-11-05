@@ -27,8 +27,8 @@ UNION, D_UNION, XUNION, INTERSECT, MINUS, I_MINUS, JOIN, TIMES, MATCHING, NOT MA
 
 Of these union, xunion and join (natural join) would be candidates for defining
 as monoids. They are associative, take two parameters and they have an identity
-value. The issue is with how monoids are required to take and result in values of
-the same type.
+value. The issue is with how monoids are required to take and result in values
+of the same type.
 
 Regarding natural join the issue is that, by definition, relations of different
 headings are of different types, which would preclude it as a monoid. On the
@@ -40,18 +40,20 @@ of types in light of the sets of values natural join takes as arguments and give
 as a result one can only identify a single "relation type", which all relation
 values of all headings are values of, and nothing in light of natural join gives
 rise to any disctinction between relations of different headings. But there can
-only be one classification of types in a type system, and the one which works for
-relational theory does not behave this way. Natural join is therefore ineligible
-as a monoid, which is quite a shame given that natural join is a very fundamental
-operator of relational theory, and would be reasonable to consider as a monoid.
+only be one classification of types in a type system, and the one which works
+for relational theory does not behave this way. Natural join is therefore
+ineligible as a monoid, which is quite a shame given that natural join is a very
+fundamental operator of relational theory, and would be reasonable to consider
+as a monoid.
 
-That leaves us with union and exclusive union, but here there are also issues. At
-the outset it looks much more promising in that in relational theory the two
-arguments it takes are required to be of the same type, but here we run into a
-subtle issue when implementing it in one single system that manages multiple
-layers of abstraction, as HaskRel does.
+That leaves us with union and exclusive union, but here there are also
+issues. At the outset it looks much more promising in that in relational theory
+the two arguments it takes are required to be of the same type, but here we run
+into a subtle issue when implementing it in one single system that manages
+multiple layers of abstraction, as HaskRel does.
 
-We see the issue when we consider the type of Database.HaskRel.Relational.Algebra.union:
+We see the issue when we consider the type of
+Database.HaskRel.Relational.Algebra.union:
 
 >>> :t Database.HaskRel.Relational.Algebra.union
 Database.HaskRel.Relational.Algebra.union
@@ -87,8 +89,8 @@ the type system is concerned, but constrained to those that share those specific
 properties that are relevant for the user to view them as "the same type".
 
 This is therefore not merely a design accident; an implementation that manages
-both aspects within one given type system must look more or less this way.
-This is due to the fact that it must be possible to treat the records/tuples of
+both aspects within one given type system must look more or less this way.  This
+is due to the fact that it must be possible to treat the records/tuples of
 relation values as lists for purposes of presentation and representation.
 Consider the following union, and the presentation of the resulting value:
 
@@ -115,22 +117,22 @@ Consider the following union, and the presentation of the resulting value:
 └───────────┴──────────────┘
 
 The order of the second argument is coerced to the order of the first by
-Database.HaskRel.Relational.Algebra.union, (and hence to the exact same type as far as Haskell is
-concerned), which is fine since in relational theory we consider the attributes
-of a relation or tuple to be sets, and that there is no spoon/order. In contrast,
-if the second row of the body of the tabluar representation of the result of @r1
-\`union\` r2@ showed the same order as the representation of `r2` (Bar, Foo) and
-not that of the row above then it would not be a very apt representation of the
-result of the above union.
+Database.HaskRel.Relational.Algebra.union, (and hence to the exact same type as
+far as Haskell is concerned), which is fine since in relational theory we
+consider the attributes of a relation or tuple to be sets, and that there is no
+spoon/order. In contrast, if the second row of the body of the tabluar
+representation of the result of @r1 \`union\` r2@ showed the same order as the
+representation of `r2` (Bar, Foo) and not that of the row above then it would
+not be a very apt representation of the result of the above union.
 
 Therefore, as far as the `union` operator is concerned, and especially as far as
-the user must be concerned, `r1` and `r2` must be considered "the same type". They
-are only distinct as far as a system tasked with representing them as values
-(certainly to a user as we see, but potentially also for other purposes, such as
-for an efficient representation in computer memory) is concerned, but not as far
-as a user should be concerned per-se. We see as such that the same values may be
-appropriate to view as different but related types at different levels of
-abstraction in a computer system as a whole.
+the user must be concerned, `r1` and `r2` must be considered "the same
+type". They are only distinct as far as a system tasked with representing them
+as values (certainly to a user as we see, but potentially also for other
+purposes, such as for an efficient representation in computer memory) is
+concerned, but not as far as a user should be concerned per-se. We see as such
+that the same values may be appropriate to view as different but related types
+at different levels of abstraction in a computer system as a whole.
 -}
 
 module Database.HaskRel.RelMonoid
@@ -214,13 +216,21 @@ instance Ord r => Monoid (XUnion (Set r))
 
 
 {-
-An ideal solution would be a capability to define new types that confine existing types, supplying a function that "hides" some aspect of them, thus allowing them to represent an abstraction within a type system. I'll use the term "cotype" here to describe this, as one can imagine it as the result of a function over a type.
+An ideal solution would be a capability to define new types that confine
+existing types, supplying a function that "hides" some aspect of them, thus
+allowing them to represent an abstraction within a type system. I'll use the
+term "cotype" here to describe this, as one can imagine it as the result of a
+function over a type.
 
-Consider a function that orders the elements of HList records alphabetically by their labels.
+Consider a function that orders the elements of HList records alphabetically by
+their labels.
 
 rOrder :: ( OrderedRec a b ) => Record a -> Record b
 
-The intent behind this is to be able to view a HList record while ignoring the order of its elements, describing what types we want to consider equal at some higher level of abstraction. With this in place I imagine an alternative way to declare .
+The intent behind this is to be able to view a HList record while ignoring the
+order of its elements, describing what types we want to consider equal at some
+higher level of abstraction. With this in place I imagine an alternative way to
+declare .
 
 Instead of the type synonym in Database.HaskRel.Relational.Definition:
 
@@ -230,12 +240,19 @@ Consider:
 
 cotype RTuple a = rOrder & Record a
 
-The crux of the matter is to be able to use this in place of the type it is defined upon. Monoid above would be one example, but a simpler example would be Eq. With this in place, then when (==) is used against RTuples the following considerations will be made:
+The crux of the matter is to be able to use this in place of the type it is
+defined upon. Monoid above would be one example, but a simpler example would be
+Eq. With this in place, then when (==) is used against RTuples the following
+considerations will be made:
  * If the underlying types are the same, then (==) is applied as normal.
  * If types with rOrder applied are the same, then (==) is applied to the 
  * If the types with rOrder applied are different, then it will fail to typecheck.
 
-Alternatively, one may employ a function that takes two arguments, one of which will be morphed to the other, which in the case of RTuple would hRearrange one value to the other. This may be more performant as one will only have to transform one value, but will require a strategy for determining which value of several will be the target value. The rules will then be similar:
+Alternatively, one may employ a function that takes two arguments, one of which
+will be morphed to the other, which in the case of RTuple would hRearrange one
+value to the other. This may be more performant as one will only have to
+transform one value, but will require a strategy for determining which value of
+several will be the target value. The rules will then be similar:
  * If the underlying types are the same, then (==) is applied as normal.
  * If ...
  * If ...
@@ -244,6 +261,7 @@ A few rules:
 
 t (r a' b') == t (r b' a')
 
-* The result of a transformation upon a type must be a value of the original type, but not neccesarily the same value.
+* The result of a transformation upon a type must be a value of the original
+type, but not neccesarily the same value.
 
 -}

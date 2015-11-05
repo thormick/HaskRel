@@ -6,15 +6,19 @@
 
 {-|
 Module      : Definition
-Description : Definition and presentation of relational objects in terms of Haskell and HList records
+Description : Definition and presentation of relational objects in terms of
+              Haskell and HList records
 Copyright   : © Thor Michael Støre, 2015
 License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmail døt com
 Stability   : experimental
 
-Definition and presentation of relational objects in terms of Haskell and HList records, and certain implementation level supporting functions.
+Definition and presentation of relational objects in terms of Haskell and HList
+records, and certain implementation level supporting functions.
 
-Naming convention of the relational model is, to a degree, adopted to clarify how it is mirrored into Haskell. With these aliases in place the following are equivalent:
+Naming convention of the relational model is, to a degree, adopted to clarify
+how it is mirrored into Haskell. With these aliases in place the following are
+equivalent:
 
 >>> :t fromList [] :: Set (Record '[Tagged "sno" String, Tagged "status" Int])
 
@@ -25,7 +29,10 @@ module Database.HaskRel.Relational.Definition (
   -- * Definition
   Attr, RTuple, Relation,
   -- ** Labels
-  {-| To be in line with the naming convention of the relational model, the @Label@ type could be referred to as an "attribute name", and the @Labels@ type as "attribute names", but since this would not clarify the matter significantly HaskRel re-exports them as-is.
+  {-| To be in line with the naming convention of the relational model, the @Label@
+type could be referred to as an "attribute name", and the @Labels@ type as
+"attribute names", but since this would not clarify the matter significantly
+HaskRel re-exports them as-is.
 
 It is important to note how labels may either be pre-defined, or used ad-hoc:
 
@@ -37,7 +44,10 @@ It is important to note how labels may either be pre-defined, or used ad-hoc:
   -}
   Label(Label), Labels,
   -- * Construction
-  {- | These functions are based on common HList operations, and given aliases that are in line with relational theory. As mentioned for each function they only support 0 to 6-tuples, which is of course a drawback. For r-tuples of other degrees the basic HList approaches to record construction may be used:
+  {-| These functions are based on common HList operations, and given aliases that
+are in line with relational theory. As mentioned for each function they only
+support 0 to 6-tuples, which is of course a drawback. For r-tuples of other
+degrees the basic HList approaches to record construction may be used:
 
 >>> let sno = Label :: Label "sno"
 ... etc ...
@@ -75,13 +85,18 @@ import Data.Typeable
 -- | A shorthand for "attribute", and a synonym of @Data.Tagged@.
 type Attr = Tagged
 
--- | A "tuple as defined by the relational model", synonym for @Data.HList.Record@.
+{-| A "tuple as defined by the relational model", synonym for
+@Data.HList.Record@.
+-}
 type RTuple = Record
 
 -- | A synonym for @Set ( RTuple a )@.
 type Relation a = Set ( RTuple a )
 
--- | A shorthand for "relational header", and a synonym of @Data.HList.Record.Labels@. The header of either an r-tuple or a relation in relational theory.
+{-| A shorthand for "relational header", and a synonym of
+@Data.HList.Record.Labels@. The header of either an r-tuple or a relation in
+relational theory.
+-}
 type RHdr a = Labels a
 
 {-
@@ -113,7 +128,8 @@ rTuple :: (HLabelSet (LabelsOf r), HTuple r t, HAllTaggedLV r) =>
      t -> RTuple r
 rTuple t = mkRecord $ hFromTuple t
 
-{-| Constructs an r-tuple from a tuples of untagged values, where the labels and exact types are inferred from the context. Supports only 0 to 6-tuples.
+{-| Constructs an r-tuple from a tuples of untagged values, where the labels and
+exact types are inferred from the context. Supports only 0 to 6-tuples.
 
 >>> pt$ ( rTuple' ("S1", "Smith", 20, "London") :: RTuple '[SNO, SName, Status, City] )
 ...
@@ -126,7 +142,9 @@ rTuple'
      t -> RTuple b
 rTuple' t = hMapTaggedFn $ hFromTuple t
 
-{-| Construct a relation value from a list of r-tuples of tagged values. Alias of 'Data.Set.fromList' with a result restricted to 'Relation', with a name from relational theory. Supports only 0 to 6-tuples.
+{-| Construct a relation value from a list of r-tuples of tagged values. Alias of
+'Data.Set.fromList' with a result restricted to 'Relation', with a name from
+relational theory. Supports only 0 to 6-tuples.
 
 >>> :{
 pt$ relation [rTuple (sno .=. "S1", sName .=. "Smith", status .=. (20::Integer), city .=. "London"),
@@ -142,7 +160,9 @@ pt$ relation [rTuple (sno .=. "S1", sName .=. "Smith", status .=. (20::Integer),
 relation :: (Ord a, a ~ Record b) => [a] -> Relation b
 relation = fromList
 
-{-| Construct a relation value from a list of tuples of untagged values, where the labels and exact types are inferred from the context. Supports only 0 to 6-tuples.
+{-| Construct a relation value from a list of tuples of untagged values, where the
+labels and exact types are inferred from the context. Supports only 0 to
+6-tuples.
 
 >>> pt$ ( relation' [("S1", "Smith", 20, "London"), ("S2", "Jones", 10, "Paris")] :: Relation '[SNO, SName, Status, City] )
 
@@ -161,7 +181,10 @@ relation''
 relation'' = fromList . map rTuple
 
 
-{-| Alias of @Data.HList.HList.hFromTuple@ with a name that is more descriptive for the purpose of constructing "Labels", which are employed as relational headings, from Haskell tuples of label values. When labels have been defined it permits expressing:
+{-| Alias of @Data.HList.HList.hFromTuple@ with a name that is more descriptive
+for the purpose of constructing "Labels", which are employed as relational
+headings, from Haskell tuples of label values. When labels have been defined it
+permits expressing:
 
 >>> pt$ p `project` (undefined :: Labels '["pno","pName","color"])
 
@@ -179,7 +202,8 @@ rHdr = hFromTuple
 as :: Label l -> v -> Tagged l v
 as = (.=.)
 
-{-| N-adic constructor of 'as' statements, using @mkRecord . hFromTuple@. Only supports 0 to 6-tuples.
+{-| N-adic constructor of 'as' statements, using @mkRecord . hFromTuple@. Only
+supports 0 to 6-tuples.
 
 >>> let pnu = Label :: Label "pnu"
 >>> let colour = Label :: Label "colour"
@@ -194,7 +218,9 @@ nAs = mkRecord . hFromTuple
 
 -- == Supporting functions
 
--- | Order-agnostic equality operation, which is neccessary for comparison correct for r-tuples.
+{-| Order-agnostic equality operation, which is neccessary for comparison correct
+for r-tuples.
+-}
 unordRecEq
   :: (Eq (HList l), HRearrange3 (LabelsOf l) r l,
       HLabelSet (LabelsOf l), SameLength' r l,
@@ -204,7 +230,9 @@ unordRecEq
 unordRecEq l r = l == hRearrange' r
 
 
--- This variant is quite slow, though that should be because of type system issues and not runtime performance; replicate 10 of a comparison has much better performance than repeating it in a 10-tuple.
+-- This variant is quite slow, though that should be because of type system
+-- issues and not runtime performance; replicate 10 of a comparison has much
+-- better performance than repeating it in a 10-tuple.
 unordRecEq'
   :: (Eq (HList l), HRearrange3 (LabelsOf l) r l,
       HLabelSet (LabelsOf l), HLabelSet (LabelsOf r),
@@ -214,7 +242,8 @@ unordRecEq'
      RTuple l -> RTuple t -> Bool
 unordRecEq' l r = l == hProjectByLabels' r
 
--- | Rearrange a set of HList records to context. From the perspective of relational theory this is a presentation function.
+-- | Rearrange a set of HList records to context. From the perspective of
+-- relational theory this is a presentation function.
 relRearrange
   :: (Ord (HList l), HRearrange3 (LabelsOf l) r l,
       HLabelSet (LabelsOf l), SameLength' r l,
@@ -223,7 +252,9 @@ relRearrange
      Relation r -> Relation l
 relRearrange = Data.Set.map hRearrange'
 
--- | Rearrange a set of HList records to the order of a set given by an argument. The value of the second argument will be ignored. From the perspective of relational theory this is a presentation function.
+-- | Rearrange a set of HList records to the order of a set given by an
+-- argument. The value of the second argument will be ignored. From the
+-- perspective of relational theory this is a presentation function.
 relRearrange'
   :: (Ord (HList l), HRearrange3 (LabelsOf l) r l,
       HLabelSet (LabelsOf l), SameLength' r l,
@@ -232,7 +263,8 @@ relRearrange'
      Relation r -> Relation l -> Relation l
 relRearrange' rel ord = Data.Set.map hRearrange' rel
 
--- That ' is swapped between relRearrange and hRearrange is a work related accident and not the way it must be.
+-- That ' is swapped between relRearrange and hRearrange is a work related
+-- accident and not the way it must be.
 
 rElementType :: Relation r -> RTuple r
 rElementType rel = undefined
@@ -247,7 +279,7 @@ bodyAsList = Data.Set.foldr (\t b -> recordValues t : b ) []
 
 -- == Constants of relational theory
 
-{- | The nullary relation with an empty body
+{-| The nullary relation with an empty body
 
 >>> pt$ tableDum
 ┌──┐
@@ -260,7 +292,7 @@ True
 tableDum :: Relation '[]
 tableDum = Data.Set.empty
 
-{- | The nullary relation of cardinality one.
+{-| The nullary relation of cardinality one.
 
 >>> pt$ tableDee
 ┌──┐
@@ -280,7 +312,8 @@ tableDee = fromList[emptyRecord]
 -- Redefined and not just reexported to add a bit of documentation
 -- TODO: Check if it's possible to have something that'll work for both tableDum and empty.
 
-{- | The empty set without an explicit type. In a relational context this is a relation with an empty body and no defined heading.
+{-| The empty set without an explicit type. In a relational context this is a
+relation with an empty body and no defined heading.
 
 >>> relation [rTuple (sno .=. "S1", status .=. 5)] == empty
 False
@@ -311,7 +344,8 @@ instance HListTypeSynonym HaskRelTS where
 rPrint :: HFWPresent r => r -> IO ()
 rPrint = hfwPrint
 
--- | Prints a tabular representation of an r-tuple or relation, with type information.
+-- | Prints a tabular representation of an r-tuple or relation, with type
+-- information.
 rPrintTyped :: HFWPresent r => r -> IO ()
 rPrintTyped = hfwPrintTypedTS HaskRelTS
 
@@ -323,7 +357,9 @@ p = rPrint
 pt :: HFWPresent r => r -> IO ()
 pt = rPrintTyped
 
--- | Specialization of @Database.HaskRel.HFWTabulation.showHTypeTS@ that employs HaskRel specific type-synonyms.
+{-| Specialization of @Database.HaskRel.HFWTabulation.showHTypeTS@ that employs
+HaskRel specific type-synonyms.
+-}
 rShowType :: TypeRep -> String
 rShowType = showHTypeTS HaskRelTS
 

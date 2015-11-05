@@ -16,7 +16,9 @@ module Database.HaskRel.FWTabulation (
 
 import Data.List ( intercalate )
 
--- | Given two lists of orderables, produces a list of equal length where each element is that which is the maximum of those elements that are in the same position in the two input lists.
+-- | Given two lists of orderables, produces a list of equal length where each
+-- element is that which is the maximum of those elements that are in the same
+-- position in the two input lists.
 maxLen :: Ord b => [b] -> [b] -> [b]
 maxLen = zipWith max
 
@@ -40,8 +42,12 @@ buildColumns' [] [] str = str
 buildColumns' [p] [t] str = buildOneColumn p t str
 buildColumns' (p:ps) (t:ts) str = buildColumns' ps ts $ buildOneColumn p t str ++ " │ "
 
--- These error messages stem from before HList was used and a less disciplined form was used instead, they should be impossible to trigger today barring the introduction of bugs.
--- These are pure presentation functions, so it's okay to just inform of the error rather than programmatically signaling it
+-- These error messages stem from before HList was used and a less disciplined
+-- form was used instead, they should be impossible to trigger today barring the
+-- introduction of bugs.
+
+-- These are pure presentation functions, so it's okay to just inform of the
+-- error rather than programmatically signaling it
 buildColumns' [] [t] str = str ++ "Internal Error: " ++ t
 buildColumns' [] (t:ts) str = str ++ "Internal Error: " ++ intercalate " │ " (t:ts)
 
@@ -49,17 +55,23 @@ buildColumns' [p] [] str = str ++ "Internal Error: " ++ show p
 buildColumns' (p:ps) [] str = str ++ "Internal Error: " ++ intercalate " │ " ( map show $ p:ps )
 
 
--- | Gets the maximum length of each column of a value consisting of a header and a single line
+{-| Gets the maximum length of each column of a value consisting of a header and
+a single line
+-}
 colWidths ::
   (Foldable t, Foldable t1) =>
   [[t1 a1]] -> [t a] -> [Int]
 colWidths l hdr = foldl1 maxLen [ map length hdr, allColWidths l ]
 
--- | Gets the width of the columns of a value in when presented in a columnar format.
+{-| Gets the width of the columns of a value in when presented in a columnar
+format.
+-}
 allColWidths :: Foldable t => [[t a]] -> [Int]
 allColWidths = map $ maximum . map length
 
--- | Gets the maximum length of each column of a value consisting of a header and zero or more lines
+{-| Gets the maximum length of each column of a value consisting of a header and
+zero or more lines
+-}
 nColWidths :: (Foldable t, Foldable t1) => [[[t1 a1]]] -> [t a] -> [Int]
 nColWidths ll hdr = foldl1 maxLen $ map length hdr : mapListLen ll
 
@@ -104,7 +116,9 @@ buildRow' hPad [strRep] = ["│ " ++ buildColumns hPad strRep ++ " │"]
 buildRow' hPad (strRep:strRepX) = ( "│ " ++ buildColumns hPad strRep ++ " │" ) : buildRow' hPad strRepX
 
 
--- | Transposes a list of lists of lists, padding the lists of the second dimension with empty lists if they are shorter than the other rows.
+{-| Transposes a list of lists of lists, padding the lists of the second
+dimension with empty lists if they are shorter than the other rows.
+-}
 padTranspose :: [[[t]]] -> [[[t]]]
 padTranspose x = padTranspose' x ( maximum ( map length x ) - 1 )
 

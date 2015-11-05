@@ -9,12 +9,21 @@ License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmail døt com
 Stability   : experimental
 
-"Database.HaskRel.Relational.Algebra" and "Database.HaskRel.Relational.Assignment" defines the functions of the relational algebra and relational assignment, but in order to keep pertinent concerns separated it only defines functions for relational operations that reference values, not relation variables. This module redefines those functions, generalizing them such that they operate upon relation values, relation variables and relational IO (relational expressions that build upon relvars), and also adds 'HFWPresent' instances for relational IO.
+"Database.HaskRel.Relational.Algebra" and
+"Database.HaskRel.Relational.Assignment" defines the functions of the relational
+algebra and relational assignment, but in order to keep pertinent concerns
+separated it only defines functions for relational operations that reference
+values, not relation variables. This module redefines those functions,
+generalizing them such that they operate upon relation values, relation
+variables and relational IO (relational expressions that build upon relvars),
+and also adds 'HFWPresent' instances for relational IO.
 
-Running "examples/suppliersPartsExample.sh" starts a GHCi session where these examples can be run.
+Running "examples/suppliersPartsExample.sh" starts a GHCi session where these
+examples can be run.
 -}
 module Database.HaskRel.Relational.Expression (
-  -- * Functions defined according to the definition of monadic operators in relational theory
+  -- * Functions defined according to the definition of monadic operators in
+  -- relational theory
   {-| (Not to be confused with Haskell monads.) -}
   -- ** The monadic operator class
   MonOp (monOp), MonOpRes, MonOpArg,
@@ -22,7 +31,8 @@ module Database.HaskRel.Relational.Expression (
   rename, extend, restrict, project, projectAllBut,
   group, groupAllBut, ungroup,
   -- ** Supplementary functions
-  -- *** Specializations of functions of the relational model, with relational closure
+  -- *** Specializations of functions of the relational model, with relational
+  -- closure
   -- **** Not part of relational theory
   dExtend, extendA, dExtendA, renameA, aSummarize, imageExtendL,
   -- *** Without relational closure
@@ -30,7 +40,8 @@ module Database.HaskRel.Relational.Expression (
   -- **** Not part of relational theory
   rafoldr, rafoldrU, agg, aggU, count, isEmpty,
   rAgg, rAggU,
-  -- * Functions defined according to the definition of dyadic operators in relational theory
+  -- * Functions defined according to the definition of dyadic operators in
+  -- relational theory
   -- ** The dyadic operator class
   DyaOp, DyaOpRes, DyaOpLeft, DyaOpRight, dyaOp,
   -- ** The functions defined as dyadic operators in the relational algebra
@@ -39,7 +50,8 @@ module Database.HaskRel.Relational.Expression (
   isSubsetOf, rEq,
   -- ** Somewhat deprecated operators of the relational algebra
   summarize,
-  -- ** Specializations of functions of the relational model, with relational closure
+  -- ** Specializations of functions of the relational model, with relational
+  -- closure
   -- **** Not part of relational theory
   interJoin, iJoin,
   -- * Assignment functions
@@ -49,7 +61,9 @@ module Database.HaskRel.Relational.Expression (
   assign,
   -- ** Specialized assignment functions
   insert, dInsert, delete, iDelete,
-  -- update[A], updateAll[A] and deleteP only take relvars and optionally predicates as arguments, and not relation values, and are as such not re-defined in this module, but are re-exported for completeness
+  -- update[A], updateAll[A] and deleteP only take relvars and optionally
+  -- predicates as arguments, and not relation values, and are as such not
+  -- re-defined in this module, but are re-exported for completeness
   Assignment.deleteP, Assignment.update, Assignment.updateAll,
   -- ** Further specialized and simplified forms of update
   -- **** Not part of relational theory
@@ -90,7 +104,8 @@ class MonOp a where
 -- Alternatively, enforcing relational closure:
 --    monOp :: (MonOpArg a -> (Relation res)) -> a -> (MonOpRes a (Relation res))
 -- But it's convenient to also employ this for aggregating functions
--- TODO: This resulted in IO (IO a) at some point, should GHCi warn about that? Or if main results in this, for that matter.
+-- TODO: This resulted in IO (IO a) at some point, should GHCi warn about that?
+-- Or if main results in this, for that matter.
 
 instance MonOp (Relation a) where
     type MonOpRes (Relation a) res = res
@@ -127,7 +142,9 @@ instance (Ord (HList b), Read (HList (RecordValuesR b)), RecordValues b,
     type MonOpArg' (Relvar b) = Relation b
     monOp' f r = f <$> readRelvar r
 
--- The "values in, value out" variation allows for the same functions to be used inside the functions that rename and extends takes, but this form is necessary in certain cases; see 'rename' below, and the TODO to fix this.
+-- The "values in, value out" variation allows for the same functions to be used
+-- inside the functions that rename and extends takes, but this form is
+-- necessary in certain cases; see 'rename' below, and the TODO to fix this.
 
 
 
@@ -142,10 +159,15 @@ instance (Ord (HList b), Read (HList (RecordValuesR b)), RecordValues b,
 │ P1  │ Nut   │ Red    │ 12 % 1 │ London │
 ...
 
-Note that due to an implementation disorder this always results in an IO operation, even on values. This is not an intentional limit and will hopefully be removed in the future. If this is not acceptable (for instance inside 'extend' and 'restrict' functions), then one has to rely on 'renameA', which renames a single attribute.
+Note that due to an implementation disorder this always results in an IO
+operation, even on values. This is not an intentional limit and will hopefully
+be removed in the future. If this is not acceptable (for instance inside
+'extend' and 'restrict' functions), then one has to rely on 'renameA', which
+renames a single attribute.
 -}
 rename r l = monOp' (\r' -> Algebra.rename r' l) r
-{- TODO: Figure out why using monOp instead of monOp' breaks down with: Could not deduce (MonOpRes a (Relation r) ~ MonOpRes a (Relation r0))
+{- TODO: Figure out why using monOp instead of monOp' breaks down with: Could not
+deduce (MonOpRes a (Relation r) ~ MonOpRes a (Relation r0))
 
 This is annoying, since applying it directly in GHCi works:
 
@@ -200,8 +222,8 @@ This only accepts a single pair of labels, the label to rename and the new label
 renameA r ft = monOp (\r' -> Algebra.renameA r' ft) r
 
 
-{-|
-Extends the given relation with the r-tuple resulting from the second argument. Existing attributes with the same name will be replaced.
+{-| Extends the given relation with the r-tuple resulting from the second
+argument. Existing attributes with the same name will be replaced.
 
 The simplest form (aside from a no-op), extend with one attribute:
 
@@ -214,7 +236,12 @@ The simplest form (aside from a no-op), extend with one attribute:
 │ 8626 % 1 │ P6  │ Cog   │ Red   │ 19 % 1 │ London │
 └──────────┴─────┴───────┴───────┴────────┴────────┘
 
-When replacing an attribute with extend one must take care not to cause a naming collision. Using pattern matching with @case ... of ...@ one can pass values from one context to another with Haskell tuples, and reuse variable names, although this does require some duplication. It is also possible to use @pun@ to build the output, instead of @.*.@ and @emptyRecord@. Add one attribute, replace another:
+When replacing an attribute with extend one must take care not to cause a naming
+collision. Using pattern matching with @case ... of ...@ one can pass values
+from one context to another with Haskell tuples, and reuse variable names,
+although this does require some duplication. It is also possible to use @pun@ to
+build the output, instead of @.*.@ and @emptyRecord@. Add one attribute, replace
+another:
 
 >>> rPrint$ extend p (\[pun|weight color|] -> case (weight + 10, color ++ "-ish") of (weight, altColor) -> [pun|weight altColor|])
 ┌────────┬───────────┬─────┬───────┬───────┬────────┐
@@ -225,16 +252,25 @@ When replacing an attribute with extend one must take care not to cause a naming
 │ 29 % 1 │ Red-ish   │ P6  │ Cog   │ Red   │ London │
 └────────┴───────────┴─────┴───────┴───────┴────────┘
 
-Lining this up with the @EXTEND@ operator of Tutorial D, we can imagine @ case (a, b) of (a', b') @ as a form of @ { a' := a , b' := b } @ (though we can hardly equate them), while @pun@ is needed to unpack and pack this from and to the r-tuples.
+Lining this up with the @EXTEND@ operator of Tutorial D, we can imagine @ case
+(a, b) of (a', b') @ as a form of @ { a' := a , b' := b } @ (though we can
+hardly equate them), while @pun@ is needed to unpack and pack this from and to
+the r-tuples.
 
-Also note that if an attribute is replaced then the cardinality of the result will be equal or lower than that of the argument.
+Also note that if an attribute is replaced then the cardinality of the result
+will be equal or lower than that of the argument.
 
 >>> count sp
 12
 >>> count $ sp `extend` (\_ -> sno .=. "S0" .*. pno .=. "P0" .*. emptyRecord)
 4
 
-It is also notable that since HaskRel is not based on SQL but on relational theory as defined by Chris Date et al today, and explicitly does not have support for nulls and outer joins (as specified in [1] chapter 4), @extend@ is employed to assemble the information SQL assembles with @OUTER JOIN@. The following command (a variant of the first query on [1] page 154) gives a result that includes the information given by SQL @RIGHT OUTER JOIN@:
+It is also notable that since HaskRel is not based on SQL but on relational
+theory as defined by Chris Date et al today, and explicitly does not have
+support for nulls and outer joins (as specified in [1] chapter 4), @extend@ is
+employed to assemble the information SQL assembles with @OUTER JOIN@. The
+following command (a variant of the first query on [1] page 154) gives a result
+that includes the information given by SQL @RIGHT OUTER JOIN@:
 
 >>> :{
 do sp' <- readRelvar sp
@@ -256,11 +292,16 @@ do sp' <- readRelvar sp
 
 See material about extend, image relations and RVAs in [1] chapter 7 for more.
 
-Note the additional plumbing required to employ relvars inside the function @extend@ takes; the function 'imageExtendL' has been created to provide a more convenient way to express this, specializing upon @extend@ and 'image'.
+Note the additional plumbing required to employ relvars inside the function
+@extend@ takes; the function 'imageExtendL' has been created to provide a more
+convenient way to express this, specializing upon @extend@ and 'image'.
 -}
 extend r f = monOp (`Algebra.extend` f) r
 
-{- TODO: Is it possible to have a quasiquoter that lets one specify roughly the same as the Tutorial D snippet mentioned in the documentation above? For instance instead of:
+{- TODO: Is it possible to have a quasiquoter that lets one specify roughly the
+same as the Tutorial D snippet mentioned in the documentation above? For
+instance instead of:
+
 (\[pun|weight color|] -> case (weight + 10, color ++ "-ish") of (weight, altColor) -> [pun|weight altColor|])
 
 Having something like:
@@ -269,7 +310,9 @@ Having something like:
 That would also render extendA/dExtendA obsolete, tidying things up nicely.
 -}
 
-{-| Extends the given relation with the attribute resulting from the second argument. If an attribute with the same name exists then it will be replaced. This allows for the function of the second argument to be simpler.
+{-| Extends the given relation with the attribute resulting from the second
+argument. If an attribute with the same name exists then it will be
+replaced. This allows for the function of the second argument to be simpler.
 
 Where @c@ is an expression yielding a single attribute:
 
@@ -284,32 +327,40 @@ The following has the same result as the first example for 'extend':
 >>> let gmwt = (Label::Label "gmwt")
 >>> rPrint$ extendA p (\[pun|weight|] -> gmwt .=. weight * 454)
 
-Note that if one wants to alter the values of an existing attribute then one has to avoid a name collision. The most convenient option will most often be having a constructor function or label constant with a different name from the actual label:
+Note that if one wants to alter the values of an existing attribute then one has
+to avoid a name collision. The most convenient option will most often be having
+a constructor function or label constant with a different name from the actual
+label:
 
 >>> let _weight a = (Label::Label "weight") .=. a
 >>> rPrint$ extendA p (\[pun|weight|] -> _weight $ weight + 10)
 -}
 extendA r f = monOp (`Algebra.extendA` f) r
 {-
-Alternatively, perform the pattern matching without \"pun\", which allows different variable names from the function names:
+Alternatively, perform the pattern matching without \"pun\", which allows
+different variable names from the function names:
 
 >>> rPrint$ extendA p' (\ ( hProjectByLabels' -> ( Record ( ( Tagged weight' :: Tagged "weight" Rational ) `HCons` HNil ) ) ) -> weight .=. weight' )
 -}
--- TODO: The issue mentioned above could perhaps be solved by making pun create variables that can serve both as data and as constructors. See also https://hackage.haskell.org/package/HList/docs/Data-HList-Labelable.html
+-- TODO: The issue mentioned above could perhaps be solved by making pun create
+-- variables that can serve both as data and as constructors. See also
+-- https://hackage.haskell.org/package/HList/docs/Data-HList-Labelable.html
 
-{-|
-Disjoint extension. Extends the given relation with the result of the second argument, as 'extend', but without deleting any that exist. 
+{-| Disjoint extension. Extends the given relation with the result of the second
+argument, as 'extend', but without deleting any that exist.
 -}
 dExtend r f = monOp (`Algebra.dExtend` f) r
 
-{-|
-Disjoint extension of a single attribute. Extends the given relation with the result of the second argument, as 'extend', but without deleting any that exist. @l@ cannot already have any attribute @e@.
+{-| Disjoint extension of a single attribute. Extends the given relation with the
+result of the second argument, as 'extend', but without deleting any that
+exist. @l@ cannot already have any attribute @e@.
 -}
 dExtendA r f = monOp (`Algebra.dExtendA` f) r
 
 
-{-|
-Restricts the given relation according to the given predicate. Note that this is the well known @WHERE@ operator of both SQL and Tutorial D, but since "where" is a reserved keyword in Haskell it is named "restrict".
+{-| Restricts the given relation according to the given predicate. Note that this
+is the well known @WHERE@ operator of both SQL and Tutorial D, but since "where"
+is a reserved keyword in Haskell it is named "restrict".
 
 >>> rPrint$ p `restrict` (\[pun|weight|] -> weight < 17.5)
 ┌─────┬───────┬───────┬────────┬────────┐
@@ -336,9 +387,12 @@ restrict r f = monOp (`Algebra.restrict` f) r
 └───────┴────────┘
 -}
 project r a = monOp (`Algebra.project` a) r
--- TODO: project/projectAllBut must fail when it is given labels that don't exist in the given relation, right now it accepts all sorts of nonesense without complaining.
+-- TODO: project/projectAllBut must fail when it is given labels that don't
+-- exist in the given relation, right now it accepts all sorts of nonesense
+-- without complaining.
 
-{-| Projects the given relation on the heading of said given relation minus the given heading.
+{-| Projects the given relation on the heading of said given relation minus the
+given heading.
 
 >>> rPrint$ p `projectAllBut` (rHdr (city))
 ┌─────┬───────┬───────┬────────┐
@@ -355,7 +409,8 @@ project r a = monOp (`Algebra.project` a) r
 projectAllBut r a = monOp (`Algebra.projectAllBut` a) r
 
 
-{-| Groups the given attributes of the given relation into a given new relation valued attribute.
+{-| Groups the given attributes of the given relation into a given new relation
+valued attribute.
 
 As the Tutorial D GROUP operator, not SQL GROUP BY.
 
@@ -371,7 +426,12 @@ As the Tutorial D GROUP operator, not SQL GROUP BY.
 ...
 └────────────────────────────────────┴───────────────┘
 
-Note that the last argument is a function that tags any value with a label; an attribute constructor. This is different from Tutorial D @GROUP@, which just takes the equivalent of a label, but as long as an attribute constructor is provided it will function the same way. Here is what we get if we aggregate the relation we get as the argument to the receiving function with 'agg', instead of just supplying an attribute constructor ("@(pq .=.)@" above):
+Note that the last argument is a function that tags any value with a label; an
+attribute constructor. This is different from Tutorial D @GROUP@, which just
+takes the equivalent of a label, but as long as an attribute constructor is
+provided it will function the same way. Here is what we get if we aggregate the
+relation we get as the argument to the receiving function with 'agg', instead of
+just supplying an attribute constructor ("@(pq .=.)@" above):
 
 >>> let qtys = (Label :: Label "qtys")
 >>> pt$ group sp (rHdr (pno,qty))
@@ -397,11 +457,14 @@ Note that the last argument is a function that tags any value with a label; an a
 │ 1300            │ S1            │
 └─────────────────┴───────────────┘
 
-Note the difference between this and the example for 'image'. These last two examples may be more clearly expressed with 'groupAllBut', since we then specify the attributes that the resulting type will have.
+Note the difference between this and the example for 'image'. These last two
+examples may be more clearly expressed with 'groupAllBut', since we then specify
+the attributes that the resulting type will have.
 -}
 group rel attsIn fOut = monOp (\r' -> Algebra.group r' attsIn fOut) rel
 
-{-| Groups the given relation on all but the given attributes into a given new attribute.
+{-| Groups the given relation on all but the given attributes into a given new
+attribute.
 
 >>> pt$ groupAllBut sp (rHdr (sno)) (pq .=.)
 
@@ -421,7 +484,8 @@ True
 ungroup r a = monOp (`Algebra.ungroup` a) r
 
 
-{-| Self-summarization, the special case of `summarize` where the source and target relations is the same. This is closer to SQL GROUP BY.
+{-| Self-summarization, the special case of `summarize` where the source and
+target relations is the same. This is closer to SQL GROUP BY.
 
 >>> pt$ aSummarize sp (rHdr (pno,qty)) (\r -> qty .=. sum ( agg qty r ) .*. emptyRecord)
 
@@ -447,8 +511,12 @@ False
 isEmpty :: (MonOp a, MonOpArg a ~ Set a1) => a -> MonOpRes a Bool
 isEmpty = monOp Algebra.isEmpty
 
--- TODO: Figure out how all this will function when aggregating values into new relations. That'll most likely happen in an extend clause, where IO support is irrelevant.
-{-| Right-fold of an attribute of a relation (although a "right" fold doesn't make sense in the context of the relational model). Note that the value of the third argument is not used and may be "undefined".
+-- TODO: Figure out how all this will function when aggregating values into new
+-- relations. That'll most likely happen in an extend clause, where IO support
+-- is irrelevant.
+{-| Right-fold of an attribute of a relation (although a "right" fold doesn't make
+sense in the context of the relational model). Note that the value of the third
+argument is not used and may be "undefined".
 
 >>> rafoldr (+) 0 qty sp
 3100
@@ -457,7 +525,8 @@ isEmpty = monOp Algebra.isEmpty
 -}
 rafoldr f b a r = monOp (Algebra.rafoldr f b a) r
 
-{-| Attribute value aggregation, a specialization of 'rafoldr' that aggregates the values of a single attribute into a list of the values the attribute type wraps.
+{-| Attribute value aggregation, a specialization of 'rafoldr' that aggregates the
+values of a single attribute into a list of the values the attribute type wraps.
 
 Note that the value of the first argument is not used and may be "undefined".
 
@@ -480,7 +549,9 @@ agg = monOp . Algebra.agg
 -}
 rafoldrU f b r = monOp (Algebra.rafoldrU f b) r
 
-{-| Aggregation of the single attribute of a unary relation. A specialization of 'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of a unary relation, without requiring the name of that attribute.
+{-| Aggregation of the single attribute of a unary relation. A specialization of
+'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of a
+unary relation, without requiring the name of that attribute.
 
 >>> :{
  do sp' <- readRelvar sp
@@ -493,7 +564,8 @@ aggU :: (Foldable t, MonOp a,
      a -> MonOpRes a [a1]
 aggU = monOp Algebra.aggU
 
-{-| Aggregates an attribute and applies a function to the result of that. A specialization of `rafoldr`.
+{-| Aggregates an attribute and applies a function to the result of that. A
+specialization of `rafoldr`.
 
 Note that the value of the first argument is not used and may be "undefined".
 
@@ -504,17 +576,20 @@ rAgg :: (Foldable t, HasField l a1 a2, MonOp a, MonOpArg a ~ t a1) =>
      Label l -> a -> ([a2] -> res) -> MonOpRes a res
 rAgg a r f = monOp (f . Algebra.agg a) r
 
-{-| Aggregates the attribute of a unary relation and applies a function to the result of that. A specialization of `rafoldrU`.
+{-| Aggregates the attribute of a unary relation and applies a function to the
+result of that. A specialization of `rafoldrU`.
 
 >>> rAggU (sp `project` (rHdr (qty))) sum
 1000
 -}
 rAggU r f = monOp (f . Algebra.aggU) r
 
--- TODO: Can this be made to work not just towards an IO(Relation a) but also from it?
+-- TODO: Can this be made to work not just towards an IO(Relation a) but also
+-- from it?
 {-| The image of a relation corresponding to an r-tuple.
 
-An application of the first argument only, an r-tuple, to this function yields what is known as the @!!@ operator in Tutorial D.
+An application of the first argument only, an r-tuple, to this function yields
+what is known as the @!!@ operator in Tutorial D.
 
 >>> rPrint$ rTuple (sno .=. "S2", pno .=. "P1")
 ┌─────┬─────┐
@@ -542,7 +617,8 @@ An application of the first argument only, an r-tuple, to this function yields w
 │ P2  │ 400 │
 └─────┴─────┘
 
-Image relations give rise to summarization. Here is a form of the query, "get the quantities of items in stock for all suppliers":
+Image relations give rise to summarization. Here is a form of the query, "get
+the quantities of items in stock for all suppliers":
 
 >>> :{
 do sp' <- readRelvar sp
@@ -560,7 +636,8 @@ do sp' <- readRelvar sp
 │ 1300   │ S1  │
 └────────┴─────┘
 
-Note how view patterns are used to build the @ii@ operator, equivalent of Tutorial D's @!!@ operator. An equivalent form of the lambda would be:
+Note how view patterns are used to build the @ii@ operator, equivalent of
+Tutorial D's @!!@ operator. An equivalent form of the lambda would be:
 
 @
    (\\t -> (Label::Label "qtySum") .=. ( sum $ agg qty $ t \`image\` sp' ))
@@ -595,7 +672,9 @@ notMember e r = monOp (Data.Set.notMember $ hRearrange' e) r
 
 
 
-{- TODO: Is there a way to cut down on the number of instances? Building the dyadic operator class directly on the monadic one doesn't work, the following dyaOp'' definition compiles, but using it with nJoin'' breaks down in ambiguity.
+{- TODO: Is there a way to cut down on the number of instances? Building the
+dyadic operator class directly on the monadic one doesn't work, the following
+dyaOp'' definition compiles, but using it with nJoin'' breaks down in ambiguity.
 
 dyaOp''
   :: (MonOp a, MonOp a1, MonOpRes a1 res1 ~ (MonOpArg a -> res)) =>
@@ -702,7 +781,11 @@ rEq :: (Ord (HList l), HRearrange3 (LabelsOf l) r l,
         DyaOpLeft a ~ Relation l, DyaOpRight b ~ Relation r) =>
      a -> b -> DyaOpRes a b Bool
 rEq = dyaOp (==)
--- TODO: Oh great, now I need an IO version of restrict. This is tricky, my first thought is that a predicate for 'filter' will still take a regular value as before but may result in an IO Bool instead of Bool, so perhaps you need to do something like :: ( a -> f b ) -> f ( a -> b )
+{- TODO: Oh great, now I need an IO version of restrict. This is tricky, my first
+thought is that a predicate for 'filter' will still take a regular value as
+before but may result in an IO Bool instead of Bool, so perhaps you need to do
+something like :: ( a -> f b ) -> f ( a -> b )
+-}
 
 {-| The natural join of the two given relations.
 
@@ -721,7 +804,8 @@ naturalJoin r1 r2 = dyaOp' Algebra.naturalJoin r1 r2
 nJoin r1 r2 = dyaOp' Algebra.nJoin r1 r2
 
 
-{-| The cartesian product of two relations. A specialized natural join; the natural join between two relations with disjoint headings.
+{-| The cartesian product of two relations. A specialized natural join; the
+natural join between two relations with disjoint headings.
 
 >>> rPrint$ ( sp `projectAllBut` (rHdr (city)) ) `times` ( s `projectAllBut` (rHdr (city)) )
 ...
@@ -741,11 +825,18 @@ nJoin r1 r2 = dyaOp' Algebra.nJoin r1 r2
 -}
 times r1 r2 = dyaOp' Algebra.times r1 r2
 
-{-| The natural join between two relations with intersecting headings. A specialized natural join.
+{-| The natural join between two relations with intersecting headings. A
+specialized natural join.
 
-A join upon relations r1, r2 where the intersection of the heading of r1 and of r2 is not empty; the headings are not disjoint. This is a complement of 'times' within natural join; all that would be disallowed for @times@ is allowed here and vice-versa. The name is what I quickly settled on, suggestions for a better one would be welcome. (Attribute-Intersecting Natural Join is another candidate.)
+A join upon relations r1, r2 where the intersection of the heading of r1 and of
+r2 is not empty; the headings are not disjoint. This is a complement of 'times'
+within natural join; all that would be disallowed for @times@ is allowed here
+and vice-versa. The name is what I quickly settled on, suggestions for a better
+one would be welcome. (Attribute-Intersecting Natural Join is another
+candidate.)
 
-This function doesn't have a specific identity value, although it holds that @r \`interJoin\` r = r@
+This function doesn't have a specific identity value, although it holds that
+@r \`interJoin\` r = r@
 
 >>> rPrint$ ( sp `projectAllBut` (rHdr (sno)) ) `interJoin` ( s `projectAllBut` (rHdr (sno)) )
 ...
@@ -768,7 +859,10 @@ interJoin r1 r2 = dyaOp' Algebra.interJoin r1 r2
 iJoin r1 r2 = dyaOp' Algebra.iJoin r1 r2
 
 
-{- | Extends the first given relation with an attribute resulting from imaging each tuple of said relation against the second given relation. The following command gives a result that includes the information given by SQL @RIGHT OUTER JOIN@:
+{- | Extends the first given relation with an attribute resulting from imaging
+each tuple of said relation against the second given relation. The following
+command gives a result that includes the information given by SQL @RIGHT OUTER
+JOIN@:
 
 >>> rPrint$ imageExtendL s sp pq
 ┌───────────────┬─────┬───────┬────────┬────────┐
@@ -785,7 +879,8 @@ iJoin r1 r2 = dyaOp' Algebra.iJoin r1 r2
 │ │ P2  │ 200 │ │     │       │        │        │
 ...
 
-See also 'extend', which this function specializes, and 'image', which it uses to perform this specialization.
+See also 'extend', which this function specializes, and 'image', which it uses
+to perform this specialization.
 -}
 imageExtendL
   :: (Eq (HList l), Ord (HList l1), Ord (HList r'),
@@ -820,7 +915,8 @@ matching r1 r2 = semiJoin r1 r2
 semiJoin r1 r2 = dyaOp' Algebra.semiJoin r1 r2
 
 
-{-| The semi-difference of the first given relation against the second given relation. Aka. antijoin.
+{-| The semi-difference of the first given relation against the second given
+relation. Aka. antijoin.
 
 >>> rPrint$ s `notMatching` sp
 ┌─────┬───────┬────────┬────────┐
@@ -857,7 +953,8 @@ semiDiff r1 r2 = dyaOp' Algebra.semiDiff r1 r2
 -}
 union r1 r2 = dyaOp' Algebra.union r1 r2
 
-{-| The disjoint union between the relations. This is a union of disjoint relations, where a runtime error is raised if the arguments are not disjoint.
+{-| The disjoint union between the relations. This is a union of disjoint
+relations, where a runtime error is raised if the arguments are not disjoint.
 
 >>> :{
   rPrint$ ( p' `project` (rHdr (city)) )
@@ -876,7 +973,9 @@ dUnion r1 r2 = dyaOp' Algebra.dUnion r1 r2
 
 {-| The intersection of two relations.
 
-Note how the name is different from Data.Set, where it is named "intersection". This is due to it being referred to as "intersect" in material describing the relational model; specifically named \"INTERSECT\" in Tutorial D.
+Note how the name is different from Data.Set, where it is named
+"intersection". This is due to it being referred to as "intersect" in material
+describing the relational model; specifically named \"INTERSECT\" in Tutorial D.
 
 >>> let sX = ( relation [rTuple (sno .=. "S2", sName .=. "Jones", city .=. "Paris", status .=. 10), rTuple (sno .=. "S6", sName .=. "Nena", city .=. "Berlin", status .=. 40)] )
 >>> rPrint$ s `intersect` sX
@@ -886,17 +985,20 @@ Note how the name is different from Data.Set, where it is named "intersection". 
 │ S2  │ Jones │ 10     │ Paris │
 └─────┴───────┴────────┴───────┘
 
-Notably, for any given relation values r1 and r2 that are of the same type it holds that:
+Notably, for any given relation values r1 and r2 that are of the same type it
+holds that:
 
 @r1 \`intersect\` r2 == r1 \`naturalJoin\` r2@
 
-Within relational theory the natural join generalizes as such both intersection and cartesian product.
+Within relational theory the natural join generalizes as such both intersection
+and cartesian product.
 -}
 intersect r1 r2 = dyaOp' Algebra.intersect r1 r2
 
 {-| The difference of two relations.
 
-The "minus" term is used in material describing relational theory; specifically Tutorial D names the operator \"MINUS\".
+The "minus" term is used in material describing relational theory; specifically
+Tutorial D names the operator \"MINUS\".
 
 >>> rPrint$ s `minus` sX
 ┌─────┬───────┬────────┬────────┐
@@ -910,7 +1012,10 @@ The "minus" term is used in material describing relational theory; specifically 
 -}
 minus r1 r2 = dyaOp' Algebra.minus r1 r2
 
-{- The difference of two relations. This differs from 'minus' in that the attribute order of the second argument takes precedence. This function is as such equal to 'minus' as far as relational theory is concerned, the difference is on a lower level of abstraction.
+{- The difference of two relations. This differs from 'minus' in that the
+attribute order of the second argument takes precedence. This function is as
+such equal to 'minus' as far as relational theory is concerned, the difference
+is on a lower level of abstraction.
 
 >>> rPrint$ s `minus_` sX
 ┌─────┬───────┬────────┬────────┐
@@ -923,7 +1028,8 @@ minus r1 r2 = dyaOp' Algebra.minus r1 r2
 └─────┴───────┴────────┴────────┘
 -}
 -- minus_ r1 r2 = dyaOp' Algebra.minus_ r1 r2
--- TODO: Should minus_ be exported? I don't see a big reason to, Algebra.minus is used directly by Assignment...
+-- TODO: Should minus_ be exported? I don't see a big reason to, Algebra.minus
+-- is used directly by Assignment...
 
 
 {-| Exclusive union, aka. symmetric difference
@@ -1007,7 +1113,8 @@ instance (Ord (HList b), Read (HList (RecordValuesR b)), RecordValues b,
     relAssign f r = f =<< readRelvar r
 
 
--- TODO: What is the correct fixity? (Should most likely be thought through for the whole library.)
+-- TODO: What is the correct fixity? (Should most likely be thought through for
+-- the whole library.)
 infix 1 `assign`
 {-| Writes a relation value to a relvar file, replacing the existing value.
 
@@ -1018,8 +1125,8 @@ assign rv r = relAssign ( Assignment.assign rv ) r
 
 
 infix 1 `insert`
-{-|
-Inserts a relation into a relvar. This differs from SQLs INSERT; the relvar is updated to the union of the relvar and the relation value given as arguments.
+{-| Inserts a relation into a relvar. This differs from SQLs INSERT; the relvar is
+updated to the union of the relvar and the relation value given as arguments.
 
 >>> let newSups = relation [rTuple (sno .=. "S6", sName .=. "Nena", city .=. "Berlin", status .=. 40)]
 >>> insert s newSups
@@ -1056,7 +1163,8 @@ dInsert rv r = relAssign ( Assignment.dInsert rv ) r
 
 
 infix 1 `delete`
-{-| Deletes a specified subset of a relvar. Note that this is not SQL DELETE, but instead a generalization thereof.
+{-| Deletes a specified subset of a relvar. Note that this is not SQL DELETE, but
+instead a generalization thereof.
 
 >>> delete s newSups
 Deleted 1 tuples from SuppliersPartsDB/S.rv
@@ -1064,7 +1172,8 @@ Deleted 1 tuples from SuppliersPartsDB/S.rv
 delete rv r = relAssign ( Assignment.delete rv ) r
 
 infix 1 `iDelete`
-{-| Performs an inclusive delete against a relvar. Also not SQL DELETE. This will fail if the second argument is not a subset of the relation variable.
+{-| Performs an inclusive delete against a relvar. Also not SQL DELETE. This will
+fail if the second argument is not a subset of the relation variable.
 
 >>> iDelete sp $ relation [rTuple (sno .=. "S6", pno .=. "P7", qty .=. 99), rTuple (sno .=. "S4", pno .=. "P4", qty .=. 300), rTuple (sno .=. "S7", pno .=. "P8", qty .=. 200)]
 *** Exception: Tuples not found in relvar SuppliersPartsDB/SP.rv:

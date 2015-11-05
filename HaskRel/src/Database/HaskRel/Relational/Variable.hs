@@ -34,13 +34,15 @@ import Database.HaskRel.Relational.Definition ( Relation, bodyAsList )
 
 -- == Relation variable reference == --
 
-{-| Relation variable reference. This type has a phantom type variable, which generally calls for the type to be explicity specified:
+{-| Relation variable reference. This type has a phantom type variable, which
+generally calls for the type to be explicity specified:
 
 @ s = Relvar "SuppliersPartsDB/S.rv" :: Relvar '[SNO, SName, Status, City]@
 -}
 data Relvar (a::[*]) = Relvar { relvarPath :: FilePath }
 
--- | Gives the type a relvar results in. Note that the value this results in will always be @undefined@.
+-- | Gives the type a relvar results in. Note that the value this results in
+-- will always be @undefined@.
 relvarType :: Relvar a -> Relation a
 relvarType rv = undefined
 

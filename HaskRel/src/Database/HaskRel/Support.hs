@@ -7,7 +7,10 @@ License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmâïl døt cöm
 Stability   : experimental
 
-Predicates and aggregates useful to relational querying. These are not part of the relational algebra but are useful in relational queries in restriction predicates, and extension and summarization expressions. It also has great utility in non-relational queries, such as when performing aggregations.
+Predicates and aggregates useful to relational querying. These are not part of
+the relational algebra but are useful in relational queries in restriction
+predicates, and extension and summarization expressions. It also has great
+utility in non-relational queries, such as when performing aggregations.
 -}
 
 module Database.HaskRel.Support
@@ -24,7 +27,9 @@ import Data.List (genericLength)
 
 infix 5 &=
 
--- | Reverse predicate application. As "Data.Function.&", the reverse function application operator, but restricted to a boolean result.
+{-| Reverse predicate application. As "Data.Function.&", the reverse function
+application operator, but restricted to a boolean result.
+-}
 (&=) :: a -> ( a -> Bool ) -> Bool
 (&=) x f = f x
 
@@ -159,7 +164,10 @@ False
 │ 350.0              │ S2            │
 └────────────────────┴───────────────┘
 
-Note the explicit type in the definition of @_qtys@; it is neccessary to provide a specific type for 'pt' to format it as a table, even when an expression would otherwise be correct without this. The following would blow up if prefixed with "pt$":
+Note the explicit type in the definition of @_qtys@; it is neccessary to provide
+a specific type for 'pt' to format it as a table, even when an expression would
+otherwise be correct without this. The following would blow up if prefixed with
+"pt$":
 
 >>> group sp (rHdr (pno,qty)) ((qtys .=.) . avg . agg qty)
 fromList [Record{qtys=200.0,sno="S3"},Record{qtys=216.66666666666666,sno="S1"},Record{qtys=300.0,sno="S4"},Record{qtys=350.0,sno="S2"}]
@@ -168,7 +176,8 @@ avg :: (Fractional a, Real a1) => [a1] -> a
 avg xs = realToFrac (sum xs) / genericLength xs
 
 
-{- | Minimum of several values, defaulting to the second argument if there are no elements.
+{- | Minimum of several values, defaulting to the second argument if there are no
+elements.
 
 >>> pt$ group sp (rHdr (pno,qty)) ((qtys .=.) . (`minx` 0) . agg qty)
 ┌─────────────────┬───────────────┐
@@ -190,7 +199,8 @@ minx fl d = if F.null fl then d
                          else F.minimum fl
 -}
 
-{- | Maximum of several values, defaulting to the second argument if there are no elements
+{- | Maximum of several values, defaulting to the second argument if there are no
+elements
 
 >>> pt$ group sp (rHdr (pno,qty)) ((qtys .=.) . (`maxx` 0) . agg qty)
 ┌─────────────────┬───────────────┐

@@ -1,16 +1,22 @@
 
 {-|
 Module      : Database.HaskRel.RDBMS
-Description : A re-export of the modules that form the HList record based HaskRel library
+
+Description : A re-export of the modules that form the HList record based
+              HaskRel library
 Copyright   : © Thor Michael Støre, 2015
 License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmail døt com
 Stability   : experimental
 
-Exports the pertinent parts of HaskRel building on HList records. This gives most features of the relational algebra, relation variable support, HList CommonMain, as well as certain non-relational features such as ordering.
+Exports the pertinent parts of HaskRel building on HList records. This gives
+most features of the relational algebra, relation variable support, HList
+CommonMain, as well as certain non-relational features such as ordering.
 -}
 
--- TODO: Should call this something else than RDBMS seeing as it's so far just a DBMS + relational algebra
+{- TODO: Should call this something else than RDBMS seeing as it's so far just a
+DBMS + relational algebra
+-}
 module Database.HaskRel.RDBMS (
   module Data.HList.CommonMain,
   -- * The relational model of database management: A subset thereof
@@ -22,7 +28,9 @@ module Database.HaskRel.RDBMS (
   module Database.HaskRel.Order,
   module Database.HaskRel.Support ) where
 
--- TODO: Only import relevant parts of HList. Variant, TIPs and TICs aren't required.
+{- TODO: Only import relevant parts of HList. Variant, TIPs and TICs aren't
+required.
+-}
 import Data.HList.CommonMain
 import Data.Tagged (Tagged)
 

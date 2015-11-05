@@ -1,7 +1,8 @@
 {-# LANGUAGE TypeFamilies, FlexibleContexts, ScopedTypeVariables #-}
 {-# LANGUAGE PolyKinds #-}
 
--- TODO: dInsert and iDelete should not just invoke "error", but a proper fix is most likely to define a relational transaction that supports this correctly 
+-- TODO: dInsert and iDelete should not just invoke "error", but a proper fix is
+-- most likely to define a relational transaction that supports this correctly
 
 {-| 
 Module      : Database.HaskRel.Relational.Assignment
@@ -11,7 +12,10 @@ License     : GPL v2 without "any later version" clause
 Maintainer  : thormichael át gmail døt com
 Stability   : experimental
 
-Relational assignment and specalizations thereof. As with "Database.HaskRel.Relational.Algebra" this does not support relational expressions building on relvars, but defers that to "Database.HaskRel.Relational.Expression".
+Relational assignment and specalizations thereof. As with
+"Database.HaskRel.Relational.Algebra" this does not support relational
+expressions building on relvars, but defers that to
+"Database.HaskRel.Relational.Expression".
 -}
 module Database.HaskRel.Relational.Assignment (
   -- * The primitive assignment function
@@ -69,8 +73,8 @@ appendRelvar rv hll empty =
 
 -- == Inserts
 
-{-|
-Inserts a relation into a relvar. This differs from SQL's INSERT; the relvar is updated to the union of the relvar and the relation value given as arguments.
+{-| Inserts a relation into a relvar. This differs from SQL's INSERT; the relvar
+is updated to the union of the relvar and the relation value given as arguments.
 
 See `Database.HaskRel.Relational.Expression.insert`.
 -}
@@ -223,7 +227,13 @@ Updated 7 of 12 tuples in SuppliersPartsDB/SP.rv
 >>> count sp
 9
 -}
--- TODO: Fix update count message to reflect the situation in the last example above, although this is tricky as this is most likely something that belongs naturally in the set level functions. Note however that it is not feasable to give update counts at all in RDBSMs, as keeping exact track of the cardinality of relvars constitutes an overhead that is in many cases unacceptable, and doesn't provide information that is as useful as a naïve mind might think anyhow.
+-- TODO: Fix update count message to reflect the situation in the last example
+-- above, although this is tricky as this is most likely something that belongs
+-- naturally in the set level functions. Note however that it is not feasable to
+-- give update counts at all in RDBSMs, as keeping exact track of the
+-- cardinality of relvars constitutes an overhead that is in many cases
+-- unacceptable, and doesn't provide information that is as useful as a naïve
+-- mind might think anyhow.
 update
   :: (Ord (HList a), Read (HList (RecordValuesR a)),
       Show (HList (RecordValuesR a)), RecordValues a,
@@ -242,12 +252,14 @@ update rv p f = do
     doUpdate rv ( update' rv' p f )
 
 
-{-| Updates all tuples of a relvar. The second argument is a function that results in an attribute, making for a simpler function than for `update`.
+{-| Updates all tuples of a relvar. The second argument is a function that results
+in an attribute, making for a simpler function than for `update`.
 
 >>> updateA sp (\ [pun|pno|] -> pno == "P2" || pno == "P3" ) (\ [pun|qty|] -> _qty $ qty - 25)
 Updated 5 of 12 tuples in SuppliersPartsDB/SP.rv
 -}
--- TODO: Can't get the type signature to compile, HUpdateAtLabel2 isn't exported from Data.HList.Record
+-- TODO: Can't get the type signature to compile, HUpdateAtLabel2 isn't exported
+-- from Data.HList.Record
 updateA rv p f = do
     rv' <- readRelvar rv
     doUpdate rv ( updateA' rv' p f )
@@ -262,7 +274,9 @@ doUpdateAll rv ( count, updated ) =
 
 {-| Updates tuples of a relvar that match the given predicate.
 
-In SQL and Tutorial D both the predicate of @UPDATE@ is an optional clause, but optional clauses isn't idiomatic Haskell, hence this separate updateAll function.
+In SQL and Tutorial D both the predicate of @UPDATE@ is an optional clause, but
+optional clauses isn't idiomatic Haskell, hence this separate updateAll
+function.
 
 >>> updateAll sp (\ [pun|qty pno|] -> _qty ( qty - 25 ) .*. _pno ( pno ++ "X" ) .*. emptyRecord)
 Updated 12 tuples in SuppliersPartsDB/SP.rv
@@ -290,7 +304,8 @@ updateAll rv f = do
     rv' <- readRelvar rv
     doUpdateAll rv (updateAll' rv' f)
 
-{-| Updates all tuples of a relvar. The second argument is a function that results in an attribute, making for a simpler function than for `updateAll`.
+{-| Updates all tuples of a relvar. The second argument is a function that results
+in an attribute, making for a simpler function than for `updateAll`.
 
 >>> updateAllA sp (\ [pun|qty|] -> _qty $ qty - 50)
 Updated 12 tuples in SuppliersPartsDB/SP.rv
@@ -301,7 +316,8 @@ Updated 12 tuples in SuppliersPartsDB/SP.rv
 │ S1            │ P1            │ 250            │
 ...
 -}
--- TODO: Can't get the type signature to compile, HUpdateAtLabel2 isn't visible from Data.HList.Record
+-- TODO: Can't get the type signature to compile, HUpdateAtLabel2 isn't visible
+-- from Data.HList.Record
 updateAllA rv f = do
     rv' <- readRelvar rv
     doUpdateAll rv (updateAllA' rv' f)
@@ -313,7 +329,8 @@ doDelete rv filtered nDeleted =
      renameFile ( relvarPath rv ++ ".new" ) ( relvarPath rv )
      putStrLn $ "Deleted " ++ nDeleted ++ " tuples from " ++ relvarPath rv
 
-{-| Deletes a specified subset of a relvar. Note that this is not SQL DELETE, but instead a generalization thereof.
+{-| Deletes a specified subset of a relvar. Note that this is not SQL DELETE, but
+instead a generalization thereof.
 
 See `Database.HaskRel.Relational.Expression.delete`.
 -}
@@ -327,8 +344,9 @@ delete rv r = do
     let filtered = Data.Set.difference rv' r
         in doDelete rv filtered ( show $ size rv' - size filtered )
 
-{-|
-Performs an inclusive delete against a relvar. Also not SQL DELETE. This will fail if the second argument is not a subset of the relation value identified by the relation variable reference.
+{-| Performs an inclusive delete against a relvar. Also not SQL DELETE. This will
+fail if the second argument is not a subset of the relation value identified by
+the relation variable reference.
 
 See `Database.HaskRel.Relational.Expression.iDelete`.
 -}
@@ -368,5 +386,6 @@ deleteP rv p = do
     let filtered = Data.Set.filter ( not . p ) rv'
         in doDelete rv filtered ( show $ size rv' - size filtered )
 
--- An iDeleteP function could also be defined, but its utility would be marginal.
+-- An iDeleteP function could also be defined, but its utility would be
+-- marginal.
 

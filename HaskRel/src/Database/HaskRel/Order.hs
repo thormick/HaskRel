@@ -25,7 +25,11 @@ import Data.HList.CommonMain
 -- import Database.HaskRel.Relational.TIP.Definition
 -- import Data.Ord ( Down(Down) )
 
-{- Converts a relation to an ordered set of r-tuples, ordered ascendingly. Because Data.Set orders its elements (which is a no-no in relational theory and a quality we must disregard in the context of it), and as such functions as an ordered set, this will just rearrange the attributes.
+{- Converts a relation to an ordered set of r-tuples, ordered ascendingly. Because
+Data.Set orders its elements (which is a no-no in relational theory and a
+quality we must disregard in the context of it), and as such functions as an
+ordered set, this will just rearrange the attributes.
+
 ordRTupSet ::
      (Ord (HList l), TagUntagFD a ta, TagUntagFD a1 l,
       HProject (HList a) (HList a1)) =>

@@ -41,8 +41,8 @@ cp4 a = (a, a, a, a)
 cp5 :: t -> (t, t, t, t, t)
 cp5 a = (a, a, a, a, a)
 
-{-| Projects a relation into a set of pairs where the first element is the
-same as the result of "project" and the second the result of "projectAllBut".
+{-| Projects a relation into a set of pairs where the first element is the same as
+the result of "project" and the second the result of "projectAllBut".
 -}
 project2 ::
      (Ord (HList l), Ord (HList l1), HAllTaggedEq l, HAllTaggedEq l1,
@@ -51,14 +51,19 @@ project2 ::
      Set (TIP r) -> hlistOrRecord l2 -> Set (TIP l, TIP l1)
 project2 r a = Data.Set.map ( tipyProject2 $ labelsOf a ) r
 
-{-| Projects a relation on a single attribute, into a set of pairs where the first element is the remaining attributes and the second element is the attribute in question.
+{-| Projects a relation on a single attribute, into a set of pairs where the first
+element is the remaining attributes and the second element is the attribute in
+question.
 -}
 aProject2 :: forall r l v v' .
      (Ord l, Ord (r v'), HOccurs l (r v), HDeleteAtLabel r l v v') =>
      Set (r v) -> Label l -> Set (r v', l)
 aProject2 r a = Data.Set.map (\t -> ( hDeleteAtLabel a t, hOccurs t :: l ) ) r
 
-{-| Projects a relation on a single attribute, into a set of pairs where the first element is the remaining attributes and the second element is the value of the attribute in question. -}
+{-| Projects a relation on a single attribute, into a set of pairs where the first
+element is the remaining attributes and the second element is the value of the
+attribute in question.
+-}
 aProject2uw :: forall s r v v' .
      (Ord s, Ord (Unwrapped s), Ord (r v'), HOccurs s (r v),
       HDeleteAtLabel r s v v', Wrapped s) =>
