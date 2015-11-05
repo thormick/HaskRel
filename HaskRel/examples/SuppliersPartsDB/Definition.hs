@@ -28,7 +28,10 @@ city = Label :: Label "city"
 Which is what one must append to "let " to do the same in GHCi.
 -}
 
--- Tagged value/attribute constructors. These are convenient to have since the label names collide with the label functions when punning, which is a particular nuisance when using 'extend' to alter an attribute:
+{- Tagged value/attribute constructors. These are convenient to have since the
+label names collide with the label functions when punning, which is a particular
+nuisance when using 'extend' to alter an attribute:
+-}
 _sno a = sno .=. a :: SNO
 _sName a = sName .=. a :: SName
 _status a = status .=. a :: Status
@@ -62,7 +65,9 @@ type SP = '[SNO, PNO, QTY]
 type P  = '[PNO, PName, Color, Weight, City]
 
 
--- "Relvar S" could be used instead, but when doing ":t s" it's nicer to list the attributes.
+{- "Relvar S" could be used instead, but when doing ":t s" it's nicer to list the
+attributes.
+-}
 s  :: Relvar '[SNO, SName, Status, City]
 s   = Relvar ( dbPath ++ "S.rv" )
 sp :: Relvar '[SNO, PNO, QTY]
