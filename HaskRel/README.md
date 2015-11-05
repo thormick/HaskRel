@@ -81,8 +81,10 @@ Trying it out
 -------------
 
 To get started with an example database cd into examples, run
-suppliersPartsDB.sh, look through SuppliersPartsExample.hs, and run examples
-from the Haddock or that file.
+suppliersPartsDB.sh, look through [SuppliersPartsExample.hs](examples/SuppliersPartsExample.hs),
+and run examples from the Haddock or that file. The examples in
+`SuppliersPartsExample.hs` are Haskell renditions of Tutorial D expressions used
+as examples in SQL and Relational Theory, 2nd ed chapters 6 and 7.
 
 Alternatively, if one runs `cabal repl` one will have to either load a file with
 definitions, or define some elements to play around with. In the example below
@@ -133,7 +135,8 @@ Ad-hoc relvars can be defined thusly:
     *Database.HaskRel.RDBMS> assign baz (empty :: Relation '[Attr "asdf" Int, Attr "qwer" String] )
     Value assigned to baz.rv
 
-See "examples/SuppliersPartsDB/Definition.hs" for a way to do this properly.
+See [Definition.hs](examples/SuppliersPartsDB/Definition.hs) of the
+SuppliersPartsDB for a way to do this properly.
 
 `assign` against a newly defined relvar initializes it in the file system, and
 will create a file relative to the directory the interpreter is run from.
@@ -202,6 +205,6 @@ towards improving them or arguments towards replacing them would be beneficial.
 
 Making HaskRel usable for practical purposes is not on the horizon, but it may
 be possible to improve it further towards being a demonstrator of the relational
-model. A list of "things Haskell needs in order to qualify as a first class
+model. A list of "things Haskell/GHC needs in order to qualify as a first class
 RDBMS" would also be a fun list to have, even if there isn't a chance of it
 happening.
