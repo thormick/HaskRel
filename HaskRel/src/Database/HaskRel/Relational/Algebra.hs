@@ -910,15 +910,15 @@ agg = rafoldr (:) []
 unwrapUnary :: Record '[Tagged t t1] -> t1
 unwrapUnary ( Record (Tagged v `HCons` HNil) ) = v
 
-{- | Right-fold of the attribute of a unary relation.
+{- | Right-fold of the attribute of an unary relation.
 
 See 'Database.HaskRel.Relational.Expression.rafoldrU'.
 -}
 rafoldrU :: Foldable t => (b1 -> b -> b) -> b -> t (Record '[Tagged t1 b1]) -> b
 rafoldrU f b r = foldr ( f . unwrapUnary ) b r
 
-{- | Aggregation of the single attribute of a unary relation. A specialization of
-'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of a
+{- | Aggregation of the single attribute of an unary relation. A specialization of
+'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of an
 unary relation, without requiring the name of that attribute.
 
 >>> sum $ aggU $ sp' `project` (rHdr (qty))

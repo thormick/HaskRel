@@ -12,11 +12,11 @@ Stability   : experimental
 "Database.HaskRel.Relational.Algebra" and
 "Database.HaskRel.Relational.Assignment" defines the functions of the relational
 algebra and relational assignment, but in order to keep pertinent concerns
-separated it only defines functions for relational operations that reference
-values, not relation variables. This module redefines those functions,
-generalizing them such that they operate upon relation values, relation
-variables and relational IO (relational expressions that build upon relvars),
-and also adds 'HFWPresent' instances for relational IO.
+separated it only defines functions for relational operations upon values, not
+relation variables. This module redefines those functions, generalizing them
+such that they operate upon relation values, relation variables and relational
+IO (relational expressions that build upon relvars), and also adds 'HFWPresent'
+instances for relational IO.
 
 Running "examples/suppliersPartsExample.sh" starts a GHCi session where these
 examples can be run.
@@ -266,7 +266,7 @@ will be equal or lower than that of the argument.
 4
 
 It is also notable that since HaskRel is not based on SQL but on relational
-theory as defined by Chris Date et al today, and explicitly does not have
+theory as defined by Chris Date et al. today, and explicitly does not have
 support for nulls and outer joins (as specified in [1] chapter 4), @extend@ is
 employed to assemble the information SQL assembles with @OUTER JOIN@. The
 following command (a variant of the first query on [1] page 154) gives a result
@@ -312,7 +312,8 @@ That would also render extendA/dExtendA obsolete, tidying things up nicely.
 
 {-| Extends the given relation with the attribute resulting from the second
 argument. If an attribute with the same name exists then it will be
-replaced. This allows for the function of the second argument to be simpler.
+replaced. This allows for the function of the second argument to be simpler than
+for `extend`, which must return an r-tuple.
 
 Where @c@ is an expression yielding a single attribute:
 
@@ -540,7 +541,7 @@ agg :: (Foldable t, HasField l a1 a2, MonOp a, MonOpArg a ~ t a1) =>
      Label l -> a -> MonOpRes a [a2]
 agg = monOp . Algebra.agg
 
-{-| Right-fold of the attribute of a unary relation.
+{-| Right-fold of the attribute of an unary relation.
 
 >>> rafoldrU (+) 0 $ sp `project` (rHdr (qty))
 1000
@@ -549,7 +550,7 @@ agg = monOp . Algebra.agg
 -}
 rafoldrU f b r = monOp (Algebra.rafoldrU f b) r
 
-{-| Aggregation of the single attribute of a unary relation. A specialization of
+{-| Aggregation of the single attribute of an unary relation. A specialization of
 'agg', and thus in turn of 'rafoldr', that aggregates the single attribute of a
 unary relation, without requiring the name of that attribute.
 
@@ -576,7 +577,7 @@ rAgg :: (Foldable t, HasField l a1 a2, MonOp a, MonOpArg a ~ t a1) =>
      Label l -> a -> ([a2] -> res) -> MonOpRes a res
 rAgg a r f = monOp (f . Algebra.agg a) r
 
-{-| Aggregates the attribute of a unary relation and applies a function to the
+{-| Aggregates the attribute of an unary relation and applies a function to the
 result of that. A specialization of `rafoldrU`.
 
 >>> rAggU (sp `project` (rHdr (qty))) sum

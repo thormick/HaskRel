@@ -25,33 +25,6 @@ description:
   of two relations results in a relation with a heading that is the setwise
   union of the headings of the original relations).
   .
-  == Model
-  .
-  HaskRel is based on the relational model of database management, as defined by
-  Chris Date and Hugh Darwen today. Is is not based on SQL in any way. Tutorial
-  D has been the reference when implmementing the functions of the relational
-  algebra, although HaskRel does not satisfy the criteria of D. SQL and
-  Relational Theory, 2nd ed. [1] has been the principal guide in this endeavor
-  (I have plenty of SQL in my background so a book on SQL and the relational
-  model has been a good introduction to the latter). See also The Third
-  Manifesto [2], and the additional material on
-  <http://www.thethirdmanifesto.com/> (this might be better to start with for
-  those mathematically inclined but not steeped in SQL).
-  .
-  In addition to naming certain other aspects of Tutorial D has been adopted,
-  such as argument order. Such aspects may be changed in the future if HaskRel
-  is found to be solid enough to stand on its own, particularly if there are
-  ways to express this that are more idiomatic vis-a-vis Haskell (Tutorial D is,
-  after all, not a definition of the relational model, but vehicle for
-  understanding it).
-  .
-  == Implementation
-  .
-  HaskRel is developed and tested with GHC 7.10.2. It builds upon HList (at
-  least version 0.4.0.0). Separately from this library there is also an optional
-  variant that builds on TIPs instead of records, which additionally relies on
-  Lens (tested with version 4.12.3).
-  .
   = Examples
   .
   The examples in this documentation are based on "the old warhorse" that is the
@@ -120,10 +93,8 @@ description:
   it functions, the next part to go to at this point is
   "Database.HaskRel.RDBMS", and the modules it reexports.
   .
-  [1] <http://shop.oreilly.com/product/0636920022879.do 
-       SQL and Relational Theory, 2nd ed. (2011), C.J. Date>
-  [2] <http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf
-       The Third Manifesto, C. J. Date and Hugh Darwen, February 7th, 2013>
+  [1] <http://shop.oreilly.com/product/0636920022879.do SQL and Relational Theory, 2nd ed. (2011), C.J. Date>
+  [2] <http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf The Third Manifesto, C. J. Date and Hugh Darwen, February 7th, 2013>
 
 license:             GPL-2
 

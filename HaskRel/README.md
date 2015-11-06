@@ -27,31 +27,52 @@ a Haskell library that accommodates a subset of the relational model (unlike
 PostgreSQL, which doesn't turn C into an RDBMS), where GHCi is employed as a
 database terminal front-end.
 
-HaskRel is not based on SQL, there is no support for anything that it defines
-beyond what the relational model does, nor plans for that. It is instead
-inspired by Tutorial D. For a project of this kind it is generally more sensible
-to follow developed theory as it stands rather than an industry standard. More
-specifically, HaskRel is intended as an exploration of the possibilities to
-directly employ a general purpose programming language and its associated REPL
-as a relational database management system, or even as a bit of an academic
-exercise, and a great deal of SQL is not relevant towards this end. (SQL defines
-for instance its own types, while HaskRel is explicitly intended to build upon
-Haskell's, and SQL's type system is weaker than Haskell's, in that it employs a
-wide range of coercions between types). Features and aspects of SQL are either
-irrelevant for the purpose of HaskRel, or overlap or conflict with Haskell
-idioms that are more relevant to adhere to for a "make an RDBMS out of a general
-purpose programming language" project. (Parts of Tutorial D also overlap, such
-as the `THE_` operator and selectors vs. show and read, but all in all a
-fraction of what SQL does.) Even if there were plans to go beyond this and
-support SQL it would be a good first step to first support the fundamentals of
-the relational model both as _completely_ as it is reasonable to do, and to do
-so _properly_.
 
-For an understanding of the foundation HaskRel builds on see for instance [SQL
-and Relational Theory, 2nd
-ed.](http://shop.oreilly.com/product/0636920022879.do), [The Third
-Manifesto](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf), and the
-additional material on [http://www.thethirdmanifesto.com/]().
+Model
+-----
+
+HaskRel is based on the relational model of database management, as defined by
+Chris Date and Hugh Darwen today. For an understanding of the foundation HaskRel
+builds on see for instance
+[SQL and Relational Theory, 2nd ed.](http://shop.oreilly.com/product/0636920022879.do),
+which has been the principal guide in this endeavor (I have plenty of SQL in my
+background so a book on SQL and the relational model has been a good
+introduction to the latter). See also
+[The Third Manifesto](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf),
+and the additional material on <http://www.thethirdmanifesto.com/> (this might
+be better to start with for those mathematically inclined but not steeped in
+SQL).
+
+HaskRel is not based on SQL, there is no support for anything that it defines
+beyond what the relational model does, nor plans for that. Tutorial D has been
+the reference when implemementing the functions of the relational algebra,
+although HaskRel does not satisfy the criteria of D. For a project of this kind
+it is sensible to follow developed theory as it stands rather than an industry
+standard that deviates from it. More specifically, HaskRel is intended as an
+exploration of the possibilities to directly employ a general purpose
+programming language and its associated REPL as a relational database management
+system, or even as a bit of an academic exercise, and a great deal of SQL is not
+relevant towards this end. (SQL defines for instance its own types, while
+HaskRel is explicitly intended to build upon Haskell's, and SQL's type system is
+weaker than Haskell's, in that it employs a wide range of coercions between
+types).
+
+Features and aspects of SQL that go beyond or deviate from relational theory are
+by and large irrelevant for the purpose of HaskRel, and may even overlap or
+conflict with Haskell idioms that are more relevant to adhere to for a "make an
+RDBMS out of a general purpose programming language" project. (Parts of Tutorial
+D also overlap, such as the `THE_` operator and selectors vs. show and read, but
+all in all a fraction of what SQL does.) Even if there were plans to go beyond
+this and support SQL it would be a good first step to first support the
+fundamentals of the relational model both as _completely_ as it is reasonable to
+do, and to do so _properly_.
+
+In addition to naming certain other aspects of Tutorial D has been adopted, such
+as argument order. Such aspects may be changed in the future if HaskRel is found
+to be solid enough to stand on its own, particularly if there are ways to
+express this that are more idiomatic vis-a-vis Haskell (Tutorial D is, after
+all, not a definition of the relational model, but vehicle for understanding
+it).
 
 Of the shortcomings of model that are mentioned above the relational calculus,
 database constraints, and transactions would be possible to add in a reasonably
@@ -61,7 +82,16 @@ this fully within Haskell, although I don't know if some part of it can
 be. (This is something SQL products have had difficulties with, after all, and
 an area where the SQL standard is obtuse.) One further particular issue is that
 data definition is performed by writing, compiling and loading Haskell, which is
-particularly static compared to DDL in a proper DBMS.
+very static compared to DDL in a proper DBMS.
+
+
+Implementation
+--------------
+
+HaskRel is developed and tested with GHC 7.10.2. It builds upon HList (at least
+version 0.4.0.0). Separately from this library there is also an optional variant
+that builds on TIPs instead of records, which additionally relies on Lens
+(tested with version 4.12.3).
 
 There are many missing implementation level features that database products rely
 on, enough so that HaskRel neither is nor will be usable as a production system,
@@ -78,18 +108,24 @@ from an academic perspective.
 
 
 Trying it out
--------------
+=============
 
-To get started with an example database cd into examples, run
-suppliersPartsDB.sh, look through [SuppliersPartsExample.hs](examples/SuppliersPartsExample.hs),
-and run examples from the Haddock or that file. The examples in
-`SuppliersPartsExample.hs` are Haskell renditions of Tutorial D expressions used
-as examples in SQL and Relational Theory, 2nd ed chapters 6 and 7.
+A Haskell version of the ubiquitous suppliers-and-parts database is included as
+a [sample database](examples/SuppliersPartsDB/), with GHC installed this can be
+loaded by running suppliersPartsDB.sh in examples from the command line. This
+loads [`SuppliersPartsExample.hs`](examples/SuppliersPartsExample.hs), which
+contains Haskell renditions of Tutorial D expressions used as examples in SQL
+and Relational Theory, 2nd ed chapters 6 and 7. In the documentation see
+particularly
+[`Database.HaskRel.Relational.Expression`](http://hackage.haskell.org/package/HaskRel/docs/Database-HaskRel-Relational-Expression.html),
+which "pulls together" both the algebra and assignment functions and generalizes
+them to operate as they should in a DBMS (with caveats).
 
-Alternatively, if one runs `cabal repl` one will have to either load a file with
-definitions, or define some elements to play around with. In the example below
-most everything is ad-hoc, predefining a few values would make certain
-expressions look less messy. Here are what constants look like:
+Alternatively, `cabal repl` will start a GHCi session with the required modules
+loaded, although one will have to either load a file with definitions, or define
+some elements to play around with. In the example below most everything is
+ad-hoc, predefining a few values would make certain expressions look less
+messy. Here are what relation constants look like:
 
     *Database.HaskRel.RDBMS> let foo = relation' [( 10, "foo" ),( 20, "bar" ) ] :: Relation '[Attr "asdf" Int, Attr "qwer" String]
     *Database.HaskRel.RDBMS> let bar = relation' [( 10, "one" ),( 30, "two" ) ] :: Relation '[Attr "asdf" Int, Attr "zxcv" String]
@@ -115,9 +151,11 @@ expressions look less messy. Here are what constants look like:
     └─────────────┴────────────────┴────────────────┘
 
 (Note that certain operating systems and browsers have difficulties displaying
-the double underline of tables. On OS X Firefox has worked better than Chrome.)
+the horizontal lines of tables, either single or double. On OS X Firefox has
+worked better than Chrome.)
 
-As advertised, Haskell infers the type of relational expressions:
+As advertised, Haskell infers the type of relational expressions (mind the type
+synonyms though):
 
     *Database.HaskRel.RDBMS> :t foo
     foo :: Relation '[Attr "asdf" Int, Attr "qwer" String]
