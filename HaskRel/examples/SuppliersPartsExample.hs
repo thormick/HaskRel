@@ -240,7 +240,8 @@ directly and employ the "image" function on that: -}
 -}
   putStrLn "4:"
   -- See function "updates" below for 5.
-  -- TODO: Fix this after rename has been improved
+  -- TODO: Fix this after rename has been improved (it always results in IO at
+  -- the moment)
   do spx <- readRelvar sp
      rPrint$ sp `restrict` (\( image -> ii ) ->
                             count ( ii $ renameA (renameA spx (sno `as` sn)) (pno `as` pn) )
@@ -280,12 +281,13 @@ directly and employ the "image" function on that: -}
   putStrLn "\n158"
   rPrint$
     p `restrict` (\[pun|city|] -> city == "Paris")
-      `extendA` (\_ -> city .=. "Nice")
-      `extendA` (\[pun|weight|] -> _weight $ 2 * weight)
+      `extend` (\[pun|weight|] -> case (2 * weight, "Nice")
+                                    of (weight, city) -> [pun|weight city|] )
   -- Equivalent query that does not rely on extend's behavior of replacing attributes:
   rPrint$
     let r1 = p `restrict` (\[pun|city|] -> city == "Paris")
-        r2 = r1 `extendA` (\_ -> nc .=. "Nice" ) `extendA` (\[pun|weight|] -> nw .=. weight * 2)
+        r2 = r1 `extend` (\[pun|weight|] -> case (2 * weight, "Nice")
+                                              of (nw, nc) -> [pun|nw nc|] )
         r3 = r2 `projectAllBut` (rHdr (city,weight))
      in ( r3 `rename` nAs ((nc `as` city),(nw `as` weight)) )
 {-
@@ -293,7 +295,7 @@ The examples on the bottom of page 158 and top of 159 would be expressed as
 follows in GHCi:
 
 *SuppliersPartsExample> let s1 = p `restrict` (\[pun|city|] -> city == "Paris" )
-*SuppliersPartsExample> let s2 = ( p `restrict` (\[pun|city|] -> city == "Paris" ) ) `extendA` (\_ -> city .=. "Nice" ) `extendA` (\[pun|weight|] -> (Label::Label "weight") .=. weight * 2)
+*SuppliersPartsExample> let s2 = ( p `restrict` (\[pun|city|] -> city == "Paris" ) ) `extend` (\[pun|weight|] -> case (2 * weight, "Nice") of (weight, city) -> [pun|weight city|] )
 *SuppliersPartsExample> p ≔ ( p `minus` s1 ) `union` s2
 -}
 -- Pages 159-163: Recursion. TODO: On hold.
