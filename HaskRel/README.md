@@ -119,7 +119,8 @@ and Relational Theory, 2nd ed chapters 6 and 7. In the documentation see
 particularly
 [`Database.HaskRel.Relational.Expression`](http://hackage.haskell.org/package/HaskRel/docs/Database-HaskRel-Relational-Expression.html),
 which "pulls together" both the algebra and assignment functions and generalizes
-them to operate as they should in a DBMS (with caveats).
+them to operate as they should in a DBMS (with caveats), on both variables and
+values.
 
 Alternatively, `cabal repl` will start a GHCi session with the required modules
 loaded, although one will have to either load a file with definitions, or define
@@ -204,7 +205,7 @@ will create a file relative to the directory the interpreter is run from.
     │ 30          │ frotz          │
     └─────────────┴────────────────┘
 
-Concise expression of updates require a set of language extensions:
+Concise expression of updates require a set of language extensions (this in addition to DataKinds, which this module enables by default):
 
     *Database.HaskRel.RDBMS> :set -XQuasiQuotes -XKindSignatures -XViewPatterns
     *Database.HaskRel.RDBMS> update baz (\ [pun|asdf|] -> asdf > 15 ) (\ [pun|qwer|] -> case (qwer ++ "-new") of (qwer) -> [pun|qwer|])

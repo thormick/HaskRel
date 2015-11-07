@@ -22,8 +22,8 @@ Running "examples/suppliersPartsExample.sh" starts a GHCi session where these
 examples can be run.
 -}
 module Database.HaskRel.Relational.Expression (
-  -- * Functions defined according to the definition of monadic operators in
-  -- relational theory
+  {- * Functions defined in accordance with monadic operators of relational
+       theory -}
   {-| (Not to be confused with Haskell monads.) -}
   -- ** The monadic operator class
   MonOp (monOp), MonOpRes, MonOpArg,
@@ -31,8 +31,7 @@ module Database.HaskRel.Relational.Expression (
   rename, extend, restrict, project, projectAllBut,
   group, groupAllBut, ungroup,
   -- ** Supplementary functions
-  -- *** Specializations of functions of the relational model, with relational
-  -- closure
+  -- *** Specializations of functions of the relational model, with relational closure
   -- **** Not part of relational theory
   dExtend, extendA, dExtendA, renameA, aSummarize, imageExtendL,
   -- *** Without relational closure
@@ -40,8 +39,8 @@ module Database.HaskRel.Relational.Expression (
   -- **** Not part of relational theory
   rafoldr, rafoldrU, agg, aggU, count, isEmpty,
   rAgg, rAggU,
-  -- * Functions defined according to the definition of dyadic operators in
-  -- relational theory
+  {- * Functions defined in accordance with dyadic operators in relational
+       theory -}
   -- ** The dyadic operator class
   DyaOp, DyaOpRes, DyaOpLeft, DyaOpRight, dyaOp,
   -- ** The functions defined as dyadic operators in the relational algebra
@@ -50,8 +49,8 @@ module Database.HaskRel.Relational.Expression (
   isSubsetOf, rEq,
   -- ** Somewhat deprecated operators of the relational algebra
   summarize,
-  -- ** Specializations of functions of the relational model, with relational
-  -- closure
+  {- ** Specializations of functions of the relational model, with relational
+     closure -}
   -- **** Not part of relational theory
   interJoin, iJoin,
   -- * Assignment functions
@@ -831,10 +830,10 @@ specialized natural join.
 
 A join upon relations r1, r2 where the intersection of the heading of r1 and of
 r2 is not empty; the headings are not disjoint. This is a complement of 'times'
-within natural join; all that would be disallowed for @times@ is allowed here
-and vice-versa. The name is what I quickly settled on, suggestions for a better
-one would be welcome. (Attribute-Intersecting Natural Join is another
-candidate.)
+within natural join; all values that @naturalJoin@ accepts as operands and
+@times@ does not are accepted by @interJoin@, and vice-versa. The name is what I
+quickly settled on, suggestions for a better one would be welcome.
+(Attribute-Intersecting Natural Join is another candidate.)
 
 This function doesn't have a specific identity value, although it holds that
 @r \`interJoin\` r = r@

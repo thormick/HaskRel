@@ -41,7 +41,7 @@ The relvars of SuppliersPartsDB, with types:
 
 (Note that certain combinations of operating systems and browsers don't seem to want to display the double line of the tables correctly. On OS X 10.8 Google Chrome doesn't, whereas Firefox seems to do just fine. See also the [Wikipedia entry on box-drawing characters](http://en.wikipedia.org/wiki/Box-drawing_character#Examples).)
 
-Relation values named s', p' and sp' are also defined, of the same values as above.
+Relation constants named s', p' and sp' are also defined, of the same values as above.
 
     >>> :t s
     s :: Relvar '[SNO, SName, Status, City]
