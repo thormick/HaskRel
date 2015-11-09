@@ -29,6 +29,8 @@ recreate = do
   assign s s'
   assign sp sp'
   assign p p'
+  putStrLn $ "\nRecreating local relvars at ."
+  assign spq spq'
   putStrLn "\nDone."
 
 
@@ -42,7 +44,6 @@ main = do
   pt$ sp
   snrt2ndExamples
 
-
 r1 = relation [rTuple (sno .=. "S2", pno .=. "P1"),
                rTuple (sno .=. "S2", pno .=. "P2"),
                rTuple (sno .=. "S3", pno .=. "P2"),
@@ -55,8 +56,15 @@ r4 = relation [rTuple (sno .=. "S2", pnoRel .=. relation [pno .=. "P1" .*. empty
                rTuple (sno .=. "S4", pnoRel .=. relation [pno .=. "P2" .*. emptyRecord, pno .=. "P4" .*. emptyRecord, pno .=. "P5" .*. emptyRecord])]
 
 
--- TODO: This should be a relvar, check that RVAs work for them.
-spq = relation [rTuple (sno .=. "S5", sName .=. "Adams", status .=. 30, city .=. "Athens",
+spq = Relvar "SPQ.rv"
+      :: Relvar '[Attr "sno" String,
+                  Attr "sName" String,
+                  Attr "status" Integer,
+                  Attr "city" String,
+                  Attr "pq" (Relation '[Attr "pno" String,
+                                        Attr "qty" Integer])]
+
+spq' = relation [rTuple (sno .=. "S5", sName .=. "Adams", status .=. 30, city .=. "Athens",
                         pq .=. relation []),
                 rTuple (sno .=. "S1", sName .=. "Smith", status .=. 20, city .=. "London",
                         pq .=. relation [rTuple (pno .=. "P1", qty .=. 300),
@@ -74,9 +82,6 @@ spq = relation [rTuple (sno .=. "S5", sName .=. "Adams", status .=. 30, city .=.
                         pq .=. relation [rTuple (pno .=. "P2", qty .=. 200),
                                          rTuple (pno .=. "P4", qty .=. 300),
                                          rTuple (pno .=. "P5", qty .=. 400)])]
-
--- | "undefined" is used liberally enough that a concise alias for it is convenient.
-ü = undefined
 
 -- | As assumed on page 116
 pX = p `extendA` (\[pun|weight|] -> status .=. ( floor ( weight / 4 ) * 10 ))
@@ -108,11 +113,11 @@ to make them slightly more explicit. -}
 --
   putStrLn "\n119"
   rPrint$
-    let r1 = ( renameA s (sno `as` (Label :: Label "sa")) ) `project` (ü :: Labels '["sa", "sno"])
-        r2 = ( renameA s (sno `as` (Label :: Label "sb")) ) `project` (ü :: Labels '["sb", "sno"])
+    let r1 = ( renameA s (sno `as` (Label :: Label "sa")) ) `project` (Proxy :: Labels '["sa", "sno"])
+        r2 = ( renameA s (sno `as` (Label :: Label "sb")) ) `project` (Proxy :: Labels '["sb", "sno"])
         r3 = r1 `nJoin` r2
         r4 = r3 `restrict` (\[pun|sa sb|] -> sa < sb)
-     in r4 `project` (ü :: Labels '["sa", "sb"])
+     in r4 `project` (Proxy :: Labels '["sa", "sb"])
 --
   putStrLn "\n122"
   rPrint$ ( renameA s (city `as` (Label :: Label "sCity"))
@@ -136,7 +141,7 @@ to make them slightly more explicit. -}
   rPrint$ ( ( extend p
               (\[pun|weight|] -> (Label::Label "gmwt") .=. weight * 454 .*. emptyRecord))
             `restrict` (\[pun|gmwt|] -> gmwt > 7000) )
-              `project` (ü :: Labels '["pno", "gmwt"])
+              `project` (Proxy :: Labels '["pno", "gmwt"])
 --
   putStrLn "\n136"
 {-
@@ -189,8 +194,8 @@ directly and employ the "image" function on that: -}
   -- ... or readRelvar s could be bound and an expression that takes the
   -- relation value can be used:
   do s' <- readRelvar s
-     putStrLn $ show $ count (s' `project` (ü :: Labels '["status"]))
-  -- But note: Both "count s" and "count (s `project` (ü :: Labels
+     putStrLn $ show $ count (s' `project` (Proxy :: Labels '["status"]))
+  -- But note: Both "count s" and "count (s `project` (Proxy :: Labels
   -- '["status"]))" work just fine in GHCi, without any do block or similar (in
   -- contrast with lambda expressions).
   putStrLn "1."
@@ -199,7 +204,7 @@ directly and employ the "image" function on that: -}
   do spx <- readRelvar sp
      putStrLn $ show $ sum $ agg qty spx
   putStrLn "2."
-  do qtys <- aggU ( sp `project` (ü :: Labels '["qty"]) )
+  do qtys <- aggU ( sp `project` (Proxy :: Labels '["qty"]) )
      putStrLn $ show $ sum qtys
   putStrLn "3."
   -- "agg" is a touch more specialized than Tutorial D's "agg op"s, but lists of
@@ -252,22 +257,27 @@ directly and employ the "image" function on that: -}
 --
   putStrLn "\n152"
   rPrint$ group r1 (rHdr (pno)) (pnoRel .=.)
-  rPrint$ r4 `ungroup` (ü :: Label "pnoRel")
+  rPrint$ r4 `ungroup` pnoRel
   putStrLn$ show $ ( group r1 (rHdr (pno)) (pnoRel .=.) ) == relRearrange r4
-  putStrLn$ show $ r4 `ungroup` (ü :: Label "pnoRel") == relRearrange r1
+  putStrLn$ show $ r4 `ungroup` pnoRel == relRearrange r1
 --
   putStrLn "\n154 (using pt instead of rPrint here to show the attribute types)"
   pt$ do spx <- readRelvar sp
          extend s (\( image -> ii ) -> pq .=. (ii spx) .*. emptyRecord)
 --
   putStrLn "\n155"
-  rPrint$ ( spq `ungroup` (ü :: Label "pq") ) `restrict` (\[pun|pno|] -> pno == "P2") `project` (rHdr (sno))
-  rPrint$ spq `restrict` (\[pun|sno|] -> sno == "S2") `ungroup` (ü :: Label "pq") `project` (rHdr (sno))
+  rPrint$ ( spq `ungroup` pq ) `restrict` (\[pun|pno|] -> pno == "P2") `project` (rHdr (sno))
+  rPrint$ spq `restrict` (\[pun|sno|] -> sno == "S2") `ungroup` pq `project` (rHdr (sno))
   rPrint$ sp `restrict` (\[pun|pno|] -> pno == "P2") `project` (rHdr (sno))
   rPrint$ sp `restrict` (\[pun|sno|] -> sno == "S2") `project` (rHdr (pno))
--- TODO: putStrLn "\n156"; Insert and update examples in function "updates"
--- below, requires spq as a relvar. See above for the query involving an image
--- relation.
+
+-- TODO: putStrLn "\n156"; Insert example would work, but the example of insert
+-- into an RVA inside an update statement is not supported. This could perhaps
+-- be elegantly supported. Also, SRT2ndEd p. 156 states "the non RVA design
+-- itself is asymmetric" -- should this be "the RVA design itself is
+-- asymmetric"?
+-- See above for the query involving an image relation.
+
   putStrLn "\n157"
   rPrint$
     do spx <- readRelvar sp
