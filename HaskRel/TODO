@@ -5,6 +5,9 @@ relvars? Not sure how to get QuickCheck working for the HList Record type.)
 
 Fix Algebra.rename, right now it doesn't work with MonOp.
 
+Algebra and Assignment employ `error`, which they shouldn't. But properly
+handling that is tricky.
+
 Algebra.extend and Algebra.restrict are complicated to use with Expression,
 since they cannot handle a IO result from the function they take as their
 argument. They should support IO forms of that; IO (RTuple a) and IO Bool. This

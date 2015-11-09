@@ -38,14 +38,17 @@ builds on see for instance
 which has been the principal guide in this endeavor (I have plenty of SQL in my
 background so a book on SQL and the relational model has been a good
 introduction to the latter). See also
-[The Third Manifesto](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf),
+[The Third Manifesto, TTM](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf),
 and the additional material on <http://www.thethirdmanifesto.com/> (this might
 be better to start with for those mathematically inclined but not steeped in
-SQL).
+SQL). Regarding The Third Manifesto it is important to note that all parts of
+TTM that overlap with something preexisting in Haskell or which Haskell cannot
+support have been disregarded when implementing HaskRel (it's about determining
+where we stand, after all).
 
 HaskRel is not based on SQL, there is no support for anything that it defines
 beyond what the relational model does, nor plans for that. Tutorial D has been
-the reference when implemementing the functions of the relational algebra,
+the reference when implementing the functions of the relational algebra,
 although HaskRel does not satisfy the criteria of D. For a project of this kind
 it is sensible to follow developed theory as it stands rather than an industry
 standard that deviates from it. More specifically, HaskRel is intended as an
@@ -71,7 +74,7 @@ In addition to naming certain other aspects of Tutorial D has been adopted, such
 as argument order. Such aspects may be changed in the future if HaskRel is found
 to be solid enough to stand on its own, particularly if there are ways to
 express this that are more idiomatic vis-a-vis Haskell (Tutorial D is, after
-all, not a definition of the relational model, but vehicle for understanding
+all, not a definition of the relational model, but a vehicle for understanding
 it).
 
 Of the shortcomings of model that are mentioned above the relational calculus,
