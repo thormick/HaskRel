@@ -20,6 +20,9 @@ instances for relational IO.
 
 Running "examples/suppliersPartsExample.sh" starts a GHCi session where these
 examples can be run.
+
+Note that certain browsers and operating system combinations result in incorrect
+display of the horizontal lines of tables.
 -}
 module Database.HaskRel.Relational.Expression (
   {- * Functions defined in accordance with monadic operators of relational
@@ -31,7 +34,7 @@ module Database.HaskRel.Relational.Expression (
   rename, extend, restrict, project, projectAllBut,
   group, groupAllBut, ungroup,
   -- ** Supplementary functions
-  -- *** Specializations of functions of the relational model, with relational closure
+  -- *** With relational closure
   -- **** Not part of relational theory
   dExtend, extendA, dExtendA, renameA, aSummarize, imageExtendL,
   -- *** Without relational closure
@@ -256,8 +259,9 @@ Lining this up with the @EXTEND@ operator of Tutorial D, we can imagine @ case
 hardly equate them), while @pun@ is needed to unpack and pack this from and to
 the r-tuples.
 
-Also note that if an attribute is replaced then the cardinality of the result
-will be equal or lower than that of the argument.
+If no attributes are replaced then the cardinality of the result will be equal
+to the cardinality of the argument, if an attribute is replaced then the
+cardinality of the result will be equal or lower than that of the argument.
 
 >>> count sp
 12
