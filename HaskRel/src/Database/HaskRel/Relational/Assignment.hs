@@ -204,7 +204,7 @@ doUpdate rv ( updCount, totCount, updated ) =
 
 {-| Updates tuples of a relvar that match the given predicate. As SQL UPDATE.
 
->>> update sp (\ [pun|pno|] -> pno == "P2" || pno == "P3" ) (\ [pun|qty|] -> _qty ( qty - 25 ) .*. emptyRecord)
+>>> update sp (\ [pun|pno|] -> pno == "P2" || pno == "P3" ) (\ [pun|qty|] -> case qty - 25 of qty -> [pun|qty|] )
 Updated 5 of 12 tuples in SuppliersPartsDB/SP.rv
 *SuppliersPartsExample> rPrint$ sp
 ┌─────┬─────┬─────┐
@@ -230,10 +230,14 @@ Updated 7 of 12 tuples in SuppliersPartsDB/SP.rv
 -- TODO: Fix update count message to reflect the situation in the last example
 -- above, although this is tricky as this is most likely something that belongs
 -- naturally in the set level functions. Note however that it is not feasable to
--- give update counts at all in RDBSMs, as keeping exact track of the
+-- give update counts at all in RDBMSs, as keeping exact track of the
 -- cardinality of relvars constitutes an overhead that is in many cases
 -- unacceptable, and doesn't provide information that is as useful as a naïve
 -- mind might think anyhow.
+-- Long term TODO: When constraints are introduced it would be desirable to
+-- define a function that requires that the attributes not updated must form a
+-- superkey, so that you don't accidentally reduce a relvar when you don't
+-- intend to.
 update
   :: (Ord (HList a), Read (HList (RecordValuesR a)),
       Show (HList (RecordValuesR a)), RecordValues a,
