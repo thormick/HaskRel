@@ -1,6 +1,6 @@
 name:                HaskRel
 
-version:             0.1.0.0
+version:             0.1.0.1
 
 synopsis:            HaskRel, Haskell as a DBMS with support for the relational
                      algebra
