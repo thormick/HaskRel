@@ -175,12 +175,11 @@ directly and employ the "image" function on that: -}
 
   putStrLn "\n137"
 -- Note how the variable sno overrides the defined label sno, which is worked
--- around by using the constructor _sno instead. Another alternative would be
--- (Label::Label "sno") .=. sno.
+-- around by using (Label::Label "sno") .=. sno.
   rPrint$ do spx <- readRelvar sp
              px <- readRelvar p
              s `restrict` (\[pun|sno|] ->
-                             ( ( spx `matching` ( relation [rTuple (_sno sno)] ) )
+                             ( ( spx `matching` ( relation [rTuple ((Label::Label "sno") .=. sno)] ) )
                                `project` (rHdr (pno)) )
                              == px `project` (rHdr (pno)))
   -- Skipping pp. 138-139 and DIVIDE since it's not implemented in HaskRel, see
