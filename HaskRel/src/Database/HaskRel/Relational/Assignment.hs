@@ -222,7 +222,7 @@ Note how the cardinality of the relvar will be equal or lower after an update:
 Value assigned to SuppliersPartsDB/SP.rv
 >>> count sp
 12
->>> update sp (\[pun|pno|] -> pno == "P1" || pno == "P2" || pno == "P3") (\_ -> _pno "P1" .*. _qty 50 .*. emptyRecord)
+>>> update sp (\[pun|pno|] -> pno == "P1" || pno == "P2" || pno == "P3") (\_ -> case ("P1", 50) of (pno, qty) -> [pun|pno qty|])
 Updated 7 of 12 tuples in SuppliersPartsDB/SP.rv
 >>> count sp
 9
@@ -282,7 +282,7 @@ In SQL and Tutorial D both the predicate of @UPDATE@ is an optional clause, but
 optional clauses isn't idiomatic Haskell, hence this separate updateAll
 function.
 
->>> updateAll sp (\ [pun|qty pno|] -> _qty ( qty - 25 ) .*. _pno ( pno ++ "X" ) .*. emptyRecord)
+>>> updateAll sp (\ [pun|qty pno|] -> case (qty - 25, pno ++ "X") of (qty, pno) -> [pun|qty pno|])
 Updated 12 tuples in SuppliersPartsDB/SP.rv
 *SuppliersPartsExample> pt sp
 ┌───────────────┬───────────────┬────────────────┐

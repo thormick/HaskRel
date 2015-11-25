@@ -22,7 +22,7 @@ import SuppliersPartsDB.Default
 -- directly, instead of "relation"/"relation'"
 import Data.Set ( Set, fromList )
 
-makeLabels6 ["pnoRel","pq","sn","pn","x","y","nc","nw","qtys"]
+makeLabels6 ["pnoRel","pq","sn","pn","x","y","nc","nw"]
 
 recreate = do
   putStrLn $ "\nRecreating database at "++ dbPath
@@ -51,9 +51,9 @@ r1 = relation [rTuple (sno .=. "S2", pno .=. "P1"),
                rTuple (sno .=. "S4", pno .=. "P4"),
                rTuple (sno .=. "S4", pno .=. "P5")]
 
-r4 = relation [rTuple (sno .=. "S2", pnoRel .=. relation [pno .=. "P1" .*. emptyRecord, pno .=. "P2"  .*. emptyRecord]),
-               rTuple (sno .=. "S3", pnoRel .=. relation [pno .=. "P2" .*. emptyRecord]),
-               rTuple (sno .=. "S4", pnoRel .=. relation [pno .=. "P2" .*. emptyRecord, pno .=. "P4" .*. emptyRecord, pno .=. "P5" .*. emptyRecord])]
+r4 = relation [rTuple (sno .=. "S2", pnoRel .=. relation [rTuple (pno .=. "P1"), rTuple (pno .=. "P2")]),
+               rTuple (sno .=. "S3", pnoRel .=. relation [rTuple (pno .=. "P2")]),
+               rTuple (sno .=. "S4", pnoRel .=. relation [rTuple (pno .=. "P2"), rTuple (pno .=. "P4"), rTuple (pno .=. "P5")])]
 
 
 spq = Relvar "SPQ.rv"
@@ -135,11 +135,11 @@ to make them slightly more explicit. -}
   putStrLn "\n133"
   rPrint$ s `matching` sp
   rPrint$ s `notMatching` sp
-  rPrint$ extend p (\[pun|weight|] -> (Label::Label "gmwt") .=. weight * 454 .*. emptyRecord)
+  rPrint$ extend p (\[pun|weight|] -> case weight * 454 of gmwt -> [pun|gmwt|])
 --
   putStrLn "\n134"
   rPrint$ ( ( extend p
-              (\[pun|weight|] -> (Label::Label "gmwt") .=. weight * 454 .*. emptyRecord))
+              (\[pun|weight|] -> case weight * 454 of gmwt -> [pun|gmwt|]))
             `restrict` (\[pun|gmwt|] -> gmwt > 7000) )
               `project` (Proxy :: Labels '["pno", "gmwt"])
 --
@@ -263,7 +263,7 @@ directly and employ the "image" function on that: -}
 --
   putStrLn "\n154 (using pt instead of rPrint here to show the attribute types)"
   pt$ do spx <- readRelvar sp
-         extend s (\( image -> ii ) -> pq .=. (ii spx) .*. emptyRecord)
+         extend s (\( image -> ii ) -> case (ii spx) of spx -> [pun|spx|])
 --
   putStrLn "\n155"
   rPrint$ ( spq `ungroup` pq ) `restrict` (\[pun|pno|] -> pno == "P2") `project` (rHdr (sno))
@@ -325,7 +325,8 @@ updates = do
   do spx <- readRelvar sp
      update s
             (\( image -> ii ) -> ( sum $ agg qty (ii spx) ) < 1000)
-            (\[pun|status|] -> _status (floor $ 0.5 * toRational status) .*. emptyRecord)
+            (\[pun|status|] -> case floor $ 0.5 * toRational status
+                                 of status -> [pun|status|])
   putStrLn "Post update"
   rPrint$ s
 
