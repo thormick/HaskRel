@@ -7,13 +7,13 @@ HaskRel aims to define those elements of the relational theory of database
 management that Haskell can accommodate, thus enabling Haskell (or more
 precisely GHC) in its own right as a DBMS with first-class support for those
 parts of the relational model. It does not qualify as a proper RDBMS since it
-as-is only defines the relational algebra, relational variables and relational
-assignment. It does not define the relational calculus, views, constraints and
-transactions (beyond the fundamental requirement that the tuples of relations
-are to be unique), certain operators like relation valued aggregate operators,
-nor a few minor or even deprecated operators such as DIVIDE. The implemented
-parts are decently complete even if there are major implementation shortcomings
-that prevent this from being practically usable as an actual DBMS.
+as-is only defines the relational algebra, base relational variables and
+relational assignment. It does not define the relational calculus, views,
+constraints and transactions (beyond the fundamental requirement that the tuples
+of relations are to be unique), certain operators like relation valued aggregate
+operators, nor a few minor or even deprecated operators such as DIVIDE. The
+implemented parts are decently complete even if there are major implementation
+shortcomings that prevent this from being practically usable as an actual DBMS.
 
 I refer to it as _first-class_ since the types of the relational model are
 first-class types to Haskell, and the Haskell type system is able to induce the
@@ -38,7 +38,7 @@ builds on see for instance
 which has been the principal guide in this endeavor (I have plenty of SQL in my
 background so a book on SQL and the relational model has been a good
 introduction to the latter). See also
-[The Third Manifesto, TTM](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf),
+[The Third Manifesto (TTM)](http://www.dcs.warwick.ac.uk/~hugh/TTM/TTM-2013-02-07.pdf),
 and the additional material on <http://www.thethirdmanifesto.com/> (this might
 be better to start with for those mathematically inclined but not steeped in
 SQL). Regarding The Third Manifesto it is important to note that all parts of
@@ -122,8 +122,8 @@ and Relational Theory, 2nd ed chapters 6 and 7. In the documentation see
 particularly
 [`Database.HaskRel.Relational.Expression`](http://hackage.haskell.org/package/HaskRel/docs/Database-HaskRel-Relational-Expression.html),
 which "pulls together" both the algebra and assignment functions and generalizes
-them to operate as they should in a DBMS (with caveats), on both variables and
-values.
+them to operate as they should in a DBMS (with caveats), on both base variables
+and values.
 
 Alternatively, `cabal repl` will start a GHCi session with the required modules
 loaded, although one will have to either load a file with definitions, or define
