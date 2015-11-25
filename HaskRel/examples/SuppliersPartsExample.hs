@@ -263,7 +263,7 @@ directly and employ the "image" function on that: -}
 --
   putStrLn "\n154 (using pt instead of rPrint here to show the attribute types)"
   pt$ do spx <- readRelvar sp
-         extend s (\( image -> ii ) -> case (ii spx) of spx -> [pun|spx|])
+         extend s (\( image -> ii ) -> case (ii spx) of pq -> [pun|pq|])
 --
   putStrLn "\n155"
   rPrint$ ( spq `ungroup` pq ) `restrict` (\[pun|pno|] -> pno == "P2") `project` (rHdr (sno))
