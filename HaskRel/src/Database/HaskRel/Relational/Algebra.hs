@@ -40,7 +40,7 @@ module Database.HaskRel.Relational.Algebra (
   summarize,
   -- * Additional operators with relational closure
   interJoin, iJoin, dExtend, aSummarize,
-  imageExtendL, minus_,
+  imageExtendL, minus_, tClose,
   -- ** Alternative, concise functions
   extendA, dExtendA, renameA,
   -- * Supporting functions
@@ -57,7 +57,7 @@ import Data.Set ( Set, fromList, toList, size, intersection, difference )
 import qualified Data.Set
 
 import Database.HaskRel.HFWTabulation ( showHRecSetTab, HPresentRecAttr )
-import Database.HaskRel.Relational.Definition ( Relation, unordRecEq, relRearrange )
+import Database.HaskRel.Relational.Definition ( Relation, unordRecEq, relRearrange, as )
 
 import Data.HList.CommonMain
 
@@ -841,6 +841,43 @@ aSummarize' rel f = extendByImage rel ( rel `projectAllBut` ( labelsOfRArgs f ) 
 
 labelsOfRArgs :: (Relation l -> x) -> Proxy (LabelsOf l)
 labelsOfRArgs f = Proxy
+-}
+
+
+labels :: Relation '[Tagged a a', Tagged b b'] -> (Label a, Label b)
+labels rel = undefined
+
+-- TODO: Instead of "~z" the temporary label should be named something like x ++
+-- "~" ++ y
+-- TODO: Can a signature be defined? Just inferring it gives one that doesn't
+-- compile, which means that we must rely on "labels".
+{-| Calculates the transitive closure corresponding to a given relation.
+
+See 'Database.HaskRel.Relational.Expression.tClose'.
+-}
+tClose xy =
+  let (x,y) = labels xy
+      r1 = xy `renameA` (y `as` (Label::Label "~z"))
+      r2 = xy `renameA` (x `as` (Label::Label "~z"))
+      r3 = ( r1 `nJoin` r2 ) `project` (x .*. y .*. HNil)
+      r4 = xy `union` r3
+   in if r4 == xy then r4
+      else tClose r4
+
+{- See [1] p 160. A transcription of TCLOSE seems to be:
+
+tClose' xy =
+  let r1 = xy `renameA` ((Label::Label "y") `as` (Label::Label "~z"))
+      r2 = xy `renameA` ((Label::Label "x") `as` (Label::Label "~z"))
+      r3 = ( r1 `nJoin` r2 ) `project` ((Label::Label "x") .*. (Label::Label "y") .*. HNil)
+      r4 = xy `union` r3
+   in if r4 == xy then r4
+      else tClose' r4
+
+But it's then used against PP, whose labels aren't X and Y. It can't be
+positional? This is what tClose does, which isn't an issue since it is
+subsequently fed through a commutative function (natural join), although it is
+definitely unfortunate.
 -}
 
 

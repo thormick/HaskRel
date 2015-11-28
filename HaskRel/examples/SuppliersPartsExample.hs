@@ -15,6 +15,8 @@ import Database.HaskRel.RDBMS hiding ( p )
 import Database.HaskRel.Support
 import Database.HaskRel.Order
 
+import qualified Database.HaskRel.Relational.Algebra as Algebra
+
 import SuppliersPartsDB.Definition
 import SuppliersPartsDB.Default
 
@@ -22,7 +24,7 @@ import SuppliersPartsDB.Default
 -- directly, instead of "relation"/"relation'"
 import Data.Set ( Set, fromList )
 
-makeLabels6 ["pnoRel","pq","sn","pn","x","y","nc","nw"]
+makeLabels6 ["pnoRel","pq","sn","pn","x","y","px","py","nc","nw"]
 
 recreate = do
   putStrLn $ "\nRecreating database at "++ dbPath
@@ -85,6 +87,13 @@ spq' = relation [rTuple (sno .=. "S5", sName .=. "Adams", status .=. 30, city .=
 
 -- | As assumed on page 116
 pX = p `extendA` (\[pun|weight|] -> status .=. ( floor ( weight / 4 ) * 10 ))
+
+pp = relation [rTuple (px .=. "P1", py .=. "P2"),
+               rTuple (px .=. "P1", py .=. "P3"),
+               rTuple (px .=. "P2", py .=. "P4"),
+               rTuple (px .=. "P3", py .=. "P4"),
+               rTuple (px .=. "P4", py .=. "P5"),
+               rTuple (px .=. "P5", py .=. "P6")]
 
 -- | Examples from pp. 108-167 of SQL and Relational Theory 2nd Edition.
 snrt2ndExamples = do
@@ -307,7 +316,19 @@ follows in GHCi:
 *SuppliersPartsExample> let s2 = ( p `restrict` (\[pun|city|] -> city == "Paris" ) ) `extend` (\[pun|weight|] -> case (2 * weight, "Nice") of (weight, city) -> [pun|weight city|] )
 *SuppliersPartsExample> p ≔ ( p `minus` s1 ) `union` s2
 -}
--- Pages 159-163: Recursion. TODO: On hold.
+  putStrLn "\n159"
+  rPrint$ pp
+  rPrint (
+    let tClose xy =
+          let r1 = xy `renameA` ((Label::Label "py") `as` (Label::Label "~z"))
+              r2 = xy `renameA` ((Label::Label "px") `as` (Label::Label "~z"))
+              r3 = ( r1 `nJoin` r2 ) `project` ((Label::Label "px") .*. (Label::Label "py") .*. HNil)
+              r4 = xy `union` r3
+           in if r4 == xy then r4
+              else tClose r4
+     in tClose pp )
+-- The previous query is equal to:
+--  rPrint$ tClose pp
 --
   putStrLn "\n163"
 -- TODO: rtlPrint/rtlPrintTyped (r-tuple-list-print), to give a tabular

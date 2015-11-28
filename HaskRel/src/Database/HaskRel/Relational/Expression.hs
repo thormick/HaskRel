@@ -36,7 +36,7 @@ module Database.HaskRel.Relational.Expression (
   -- ** Supplementary functions
   -- *** With relational closure
   -- **** Not part of relational theory
-  dExtend, extendA, dExtendA, renameA, aSummarize, imageExtendL,
+  tClose, dExtend, extendA, dExtendA, renameA, aSummarize, imageExtendL,
   -- *** Without relational closure
   image, member, notMember,
   -- **** Not part of relational theory
@@ -487,6 +487,40 @@ True
 -}
 ungroup r a = monOp (`Algebra.ungroup` a) r
 
+{-| Calculates the transitive closure corresponding to a given relation.
+
+>>> rPrint pp
+┌────┬────┐
+│ px │ py │
+╞════╪════╡
+│ P1 │ P2 │
+│ P1 │ P3 │
+│ P2 │ P4 │
+│ P3 │ P4 │
+│ P4 │ P5 │
+│ P5 │ P6 │
+└────┴────┘
+>>> rPrint $ tClose pp
+┌────┬────┐
+│ px │ py │
+╞════╪════╡
+│ P1 │ P2 │
+│ P1 │ P3 │
+│ P1 │ P4 │
+│ P1 │ P5 │
+│ P1 │ P6 │
+│ P2 │ P4 │
+│ P2 │ P5 │
+│ P2 │ P6 │
+│ P3 │ P4 │
+│ P3 │ P5 │
+│ P3 │ P6 │
+│ P4 │ P5 │
+│ P4 │ P6 │
+│ P5 │ P6 │
+└────┴────┘
+-}
+tClose xy = monOp Algebra.tClose xy
 
 {-| Self-summarization, the special case of `summarize` where the source and
 target relations is the same. This is closer to SQL GROUP BY.
