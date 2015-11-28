@@ -186,7 +186,7 @@ for the purpose of constructing "Labels", which are employed as relational
 headings, from Haskell tuples of label values. When labels have been defined it
 permits expressing:
 
->>> pt$ p `project` (undefined :: Labels '["pno","pName","color"])
+>>> pt$ p `project` (Proxy :: Labels '["pno","pName","color"])
 
 As:
 
@@ -265,9 +265,6 @@ relRearrange' rel ord = Data.Set.map hRearrange' rel
 
 -- That ' is swapped between relRearrange and hRearrange is a work related
 -- accident and not the way it must be.
-
-rElementType :: Relation r -> RTuple r
-rElementType rel = undefined
 
 
 {-| Gives the body of a relation as a list. This will untag the values. -}

@@ -482,7 +482,7 @@ groupAllBut rel attsIn attOut = monOp (\r' -> Algebra.groupAllBut r' attsIn attO
 
 {-| Ungroups the given relation valued attribute of the given relation.
 
->>> sp `rEq` ungroup ( group sp (rHdr (pno,qty)) (pq .=.)) (undefined :: Label "pq")
+>>> sp `rEq` ungroup ( group sp (rHdr (pno,qty)) (pq .=.)) (Label :: Label "pq")
 True
 -}
 ungroup r a = monOp (`Algebra.ungroup` a) r
@@ -519,8 +519,8 @@ isEmpty = monOp Algebra.isEmpty
 -- relations. That'll most likely happen in an extend clause, where IO support
 -- is irrelevant.
 {-| Right-fold of an attribute of a relation (although a "right" fold doesn't make
-sense in the context of the relational model). Note that the value of the third
-argument is not used and may be "undefined".
+sense in the context of the relational model). The value of the third argument
+is not used.
 
 >>> rafoldr (+) 0 qty sp
 3100
@@ -532,7 +532,7 @@ rafoldr f b a r = monOp (Algebra.rafoldr f b a) r
 {-| Attribute value aggregation, a specialization of 'rafoldr' that aggregates the
 values of a single attribute into a list of the values the attribute type wraps.
 
-Note that the value of the first argument is not used and may be "undefined".
+The value of the first argument is not used.
 
 >>> :{
  do sp' <- readRelvar sp
@@ -571,7 +571,7 @@ aggU = monOp Algebra.aggU
 {-| Aggregates an attribute and applies a function to the result of that. A
 specialization of `rafoldr`.
 
-Note that the value of the first argument is not used and may be "undefined".
+The value of the first argument is not used.
 
 >>> rAgg qty sp sum
 3100
@@ -757,7 +757,11 @@ instance (Ord (HList a), Ord (HList b), Read (HList (RecordValuesR a)),
 
 -- TODO: Polyvariadic forms of the dyadic functions.
 
--- The algebra functions do relRearrange themselves, so don't do that in the class function but define a separate function for that. This is the only reason for this, so there's no need for the same with monOp, that can be exported as-is.
+{-
+The algebra functions do relRearrange themselves, so don't do that in the class
+function but define a separate function for that. This is the only reason for
+this, so there's no need for the same with monOp, that can be exported as-is.
+-}
 
 {-| Binary relational function application.
 
@@ -942,7 +946,7 @@ semiDiff r1 r2 = dyaOp' Algebra.semiDiff r1 r2
 
 {-| The union of two relations.
 
->>> let newSups = ( relation [rTuple (sno .=. "S6", sName .=. "Nena", city .=. "Berlin", status .=. 40)] )
+>>> let newSups = relation [rTuple (sno .=. "S6", sName .=. "Nena", city .=. "Berlin", status .=. 40)]
 >>> rPrint$ s `union` newSups
 ┌─────┬───────┬────────┬────────┐
 │ sno │ sName │ status │ city   │
@@ -981,7 +985,7 @@ Note how the name is different from Data.Set, where it is named
 "intersection". This is due to it being referred to as "intersect" in material
 describing the relational model; specifically named \"INTERSECT\" in Tutorial D.
 
->>> let sX = ( relation [rTuple (sno .=. "S2", sName .=. "Jones", city .=. "Paris", status .=. 10), rTuple (sno .=. "S6", sName .=. "Nena", city .=. "Berlin", status .=. 40)] )
+>>> let sX = relation [rTuple (sno .=. "S2", sName .=. "Jones", city .=. "Paris", status .=. 10), rTuple (sno .=. "S6", sName .=. "Nena", city .=. "Berlin", status .=. 40)]
 >>> rPrint$ s `intersect` sX
 ┌─────┬───────┬────────┬───────┐
 │ sno │ sName │ status │ city  │

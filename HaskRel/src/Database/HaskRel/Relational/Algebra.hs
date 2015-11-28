@@ -606,7 +606,7 @@ projectTOnR :: forall a b ls t proxy .
      (HLabelSet (LabelsOf a), H2ProjectByLabels ( LabelsOf ls ) t a b,
       HAllTaggedLV a) =>
      Record t -> Relation ls -> Record a
-projectTOnR t _ = hProjectByLabels ( undefined :: Proxy ( LabelsOf ls ) ) t
+projectTOnR t _ = hProjectByLabels ( Proxy :: Proxy ( LabelsOf ls ) ) t
 
 -- Specialization of restriction that takes a relation and a tuple whose heading
 -- is a (not neccesarily proper) subset of the heading of the relation, and
@@ -792,9 +792,9 @@ aSummarize
 aSummarize rel attsIn f = extendByImage rel ( rel `projectAllBut` attsIn ) f
 
 {-
--- TODO: Needs work: >>> pt$ summarize' sp' (s' `project` (undefined :: Labels '["sno"])) (\ (r :: Relation '[QTY, PNO]) -> qty .=. sum ( agg qty r ) .*. emptyRecord)   ==> Boom!
+-- TODO: Needs work: >>> pt$ summarize' sp' (s' `project` (Proxy :: Labels '["sno"])) (\ (r :: Relation '[QTY, PNO]) -> qty .=. sum ( agg qty r ) .*. emptyRecord)   ==> Boom!
 -- Although regular summarize suffers from the same issue, so it might not be a fixable issue:
--- pt$ summarize sp' (s' `project` (undefined :: Labels '["sno"])) (undefined :: Labels '["qty"]) (\(r :: Relation '[QTY,PNO]) -> qty .=. sum ( agg qty r ) .*. emptyRecord)
+-- pt$ summarize sp' (s' `project` (Proxy :: Labels '["sno"])) (Proxy :: Labels '["qty"]) (\(r :: Relation '[QTY,PNO]) -> qty .=. sum ( agg qty r ) .*. emptyRecord)
 -- Boom!
 
 {- | Summarize on the arguments of the function.
@@ -840,7 +840,7 @@ aSummarize'
 aSummarize' rel f = extendByImage rel ( rel `projectAllBut` ( labelsOfRArgs f ) ) f
 
 labelsOfRArgs :: (Relation l -> x) -> Proxy (LabelsOf l)
-labelsOfRArgs f = undefined
+labelsOfRArgs f = Proxy
 -}
 
 
@@ -880,8 +880,8 @@ isSubsetOf
 isSubsetOf l r = Data.Set.isSubsetOf l ( relRearrange r )
 
 {- | Right-fold of an attribute of a relation (although a "right" fold doesn't
-make sense in the context of the relational model). Note that the value of the
-third argument, 'att', is not used and may be "undefined".
+make sense in the context of the relational model). The value of the third
+argument, 'att', is not used.
 
 See 'Database.HaskRel.Relational.Expression.rafoldr'.
 -}
@@ -895,8 +895,7 @@ rafoldr f b a r = foldr ( f . (.!. a) ) b r
 the values of a single attribute into a list of the values the attribute type
 wraps.
 
-Note that the value of the first argument, 'att', is not used and may be
-"undefined".
+The value of the first argument, 'att', is not used.
 
 >>> sum $ agg qty sp'
 3100
